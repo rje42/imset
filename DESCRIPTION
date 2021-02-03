@@ -1,0 +1,23 @@
+Package: imset
+Type: Package
+Title: Methods for imsets with mixed graphs
+Version: 0.0.1
+Authors@R: person("Robin", "Evans", , "evans@stats.ox.ac.uk", role = c("aut", "cre"))
+Description: Methods for imsets with mixed graphs
+    and struff along those lines
+Depends:
+    R (>= 3.1),
+    rje,
+    MixedGraphs,
+    ADMGs2,
+Imports: methods, 
+         graphics, 
+         stats, 
+         utils,
+License: GPL-2
+LazyData: true
+Suggests:
+    knitr,
+    testthat,
+    rmarkdown,
+RoxygenNote: 7.1.1
