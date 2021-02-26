@@ -19,7 +19,11 @@ tailPowSet <- function(h,t) {
 ##'
 ##' Assign -1 to sets of even size, 1 to sets of odd size.
 setSign <- function(h,t) {
-  (-1)^(length(h)+1)*rje::subsetMatrix(length(t))[,1]
+  out <- c(1)
+  for (i in seq_along(t)) out <- kronecker(out, c(1,-1))
+
+  # (-1)^(length(h)+1)*rje::subsetMatrix(length(t))[,1]
+  (-1)^(length(h)+1)*out
 }
 
 ##' Get entries in vector of subsets
@@ -87,6 +91,7 @@ char_imset <- function(x, ...) {
 
 setGeneric("char_imset")
 
+##' @method standard_imset mixedgraph
 ##' @export
 standard_imset.mixedgraph <- function(x) {
   if (!is.DAG(x)) stop("This function only currently works for DAGs")
@@ -109,6 +114,7 @@ standard_imset.mixedgraph <- function(x) {
   out
 }
 
+##' @method standard_imset imset
 ##' @export
 standard_imset.imset <- function(x) {
   n <- log2(length(x))
@@ -118,6 +124,7 @@ standard_imset.imset <- function(x) {
   out
 }
 
+##' @method char_imset mixedgraph
 ##' @export
 char_imset.mixedgraph <- function(x) {
   n <- length(x$vnames)
@@ -147,9 +154,8 @@ char_imset.mixedgraph <- function(x) {
 ##'
 ##' @param x a standard imset
 ##'
-##' maybe make this generic to work with graphs and
-##' other imsets?
 ##'
+##' @method char_imset imset
 ##' @export
 char_imset.imset <- function(x) {
   n <- log2(length(x))
@@ -179,7 +185,7 @@ as.imset <- function(x) {
 
 ##' Print method for imsets
 ##' @export
-print.imset <- function(x, only_nz = TRUE) {
+print.imset <- function(x, only_nz = TRUE, ...) {
   n <- log2(length(x))
   cat("imset on ", n, " variables:\n", sep="")
 

@@ -4,7 +4,7 @@
 \alias{print.imset}
 \title{Print method for imsets}
 \usage{
-\method{print}{imset}(x, only_nz = TRUE)
+\method{print}{imset}(x, only_nz = TRUE, ...)
 }
 \description{
 Print method for imsets

@@ -4,13 +4,10 @@
 \alias{char_imset.imset}
 \title{Get characteristic imset from standard}
 \usage{
-char_imset.imset(x)
+\method{char_imset}{imset}(x)
 }
 \arguments{
-\item{x}{a standard imset
-
-maybe make this generic to work with graphs and
-other imsets?}
+\item{x}{a standard imset}
 }
 \description{
 Get characteristic imset from standard
