@@ -2,7 +2,7 @@
 % Please edit documentation in R/imsets.R
 \name{standard_imset}
 \alias{standard_imset}
-\title{Standard imset (for DAGs only)}
+\title{Standard imset}
 \usage{
 standard_imset(x, ...)
 }
@@ -10,5 +10,5 @@ standard_imset(x, ...)
 \item{x}{a graph in ADMGs format or an imset}
 }
 \description{
-Standard imset (for DAGs only)
+Standard imset
 }

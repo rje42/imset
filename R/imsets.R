@@ -1,56 +1,6 @@
 # library(MixedGraphs)
 # library(ADMGs)
 
-##' Sets of form HuA for A subset of T
-##'
-##' @param h,t head and tail sets
-##'
-##' @details Returns a list of sets of the form
-##' \eqn{H \cup A} where \eqn{A \subseteq T}.
-##'
-tailPowSet <- function(h,t) {
-  ps <- rje::powerSet(t)
-  lapply(ps, function(x) sort.int(c(h,x)))
-}
-
-##' Assign signs to head-tail sets
-##'
-##' @param h,t head and tail sets
-##'
-##' Assign -1 to sets of even size, 1 to sets of odd size.
-setSign <- function(h,t) {
-  out <- c(1)
-  for (i in seq_along(t)) out <- kronecker(out, c(1,-1))
-
-  # (-1)^(length(h)+1)*rje::subsetMatrix(length(t))[,1]
-  (-1)^(length(h)+1)*out
-}
-
-##' Get entries in vector of subsets
-##'
-##' Gives location where set would appear in imset under
-##' lexicographic ordering.
-##'
-##' @param x list of positive integer subsets
-##'
-##' Given a subset of 1,2,3,... returns the location
-##' where set would appear in lexicographic order.
-##'
-##' @examples
-##' wh_entries(list(1, 3, 1:3))
-##' wh_entries(powerSet(1:3))
-##'
-wh_entries <- function(x) {
-  if (length(x) == 0) return(integer(0))
-
-  ## get maximum value
-  n <- max(unlist(x))
-
-  wgts <- 2^(seq_len(n)-1)
-
-  ## return locations in imset vector
-  sapply(x, function(x) sum(wgts[x])) + 1
-}
 
 # ##' Calculate the ?? imset of an ADMG
 # imset <- function(graph) {
@@ -71,7 +21,28 @@ wh_entries <- function(x) {
 #   return(out)
 # }
 
-##' Standard imset (for DAGs only)
+##' Zero imset
+##'
+##' @param n number of variables
+##'
+##' @export
+zero_imset <- function(n) {
+  as.imset(rep(0, 2^n))
+}
+
+##' @describeIn zero_imset identify a single set
+##' @param A set to identify
+##' @export
+identifier_imset <- function(A, n) {
+  if (missing(n)) n <- max(A)
+
+  out <- as.imset(rep(0, 2^n))
+  out[wh_entries(list(A))] <- 1
+
+  out
+}
+
+##' Standard imset
 ##'
 ##' @param x a graph in ADMGs format or an imset
 ##' @export
@@ -92,22 +63,40 @@ char_imset <- function(x, ...) {
 setGeneric("char_imset")
 
 ##' @method standard_imset mixedgraph
+##' @importFrom rje kronPower
 ##' @export
 standard_imset.mixedgraph <- function(x) {
-  if (!is.DAG(x)) stop("This function only currently works for DAGs")
+  if (!is.ADMG(x)) stop("This function only currently works for ADMGs")
 
   n <- length(x$vnames)
   out <- rep(0, 2^n)
   out[1] = -1; out[2^n] = 1
 
-  ## get entries associated with parent sets
-  pa_set <- sapply(seq_len(n), function(v) {
-    sum(2^(MixedGraphs::pa(x, v)-1))+1
-  })
+  # if (is.DAG(x)) {
+  #   ## get entries associated with parent sets
+  #   pa_set <- sapply(seq_len(n), function(v) {
+  #     sum(2^(MixedGraphs::pa(x, v)-1))+1
+  #   })
+  #
+  #   pas <- table(pa_set)
+  #   for (i in seq_along(pas)) {
+  #     out[as.numeric(names(pas)[i])] <- out[as.numeric(names(pas)[i])] + pas[i]
+  #   }
+  #
+  #   ## set these to 1, add in vertex and set to -1
+  #   out[pa_set] <- out[pa_set] + 1
+  #   out[pa_set+2^(seq_len(n)-1)] <- out[pa_set+2^(seq_len(n)-1)] - 1
+  # }
+  {
+    ht <- headsTails(x, r=FALSE)
 
-  ## set these to 1, add in vertex and set to -1
-  out[pa_set] <- out[pa_set] + 1
-  out[pa_set+2^(seq_len(n)-1)] <- out[pa_set+2^(seq_len(n)-1)] - 1
+    for (h in seq_along(ht$heads)) {
+      idx <- sapply(powerSet(ht$heads[[h]]), function(x) sum(2^(x-1))) + 1
+      idx <- idx + sum(2^(ht$tails[[h]]-1))
+      sgn <- kronPower(c(-1,1), length(ht$heads[[h]]))
+      out[idx] <- out[idx] - sgn
+    }
+  }
 
   out <- as.imset(out)
 
@@ -250,8 +239,29 @@ elemImset <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
   as.imset(out)
 }
 
+##' Overload addition for imsets
+##'
+##' @param e1,e2 two imsets
+##'
+##' @details This function is important, because it prevents accidentally
+##' adding imsets with a different number of variables to one another, and the
+##' recycling in R giving the wrong answer.
+##'
+##' @export
 `+.imset` <- function(e1, e2) {
-  if (length(e1) != length(e2)) stop("imsets defined over different subsets")
+
+  if (length(e1) != length(e2)) {
+    if (length(e1) > length(e2))
+    {
+      tmp <- e2
+      e2 <- e1
+      e1 <- tmp
+    }
+    out <- e2
+    out[seq_along(e1)] <- out[seq_along(e1)] + e1
+    return(out)
+  }
+
   NextMethod()
 }
 

@@ -15,9 +15,11 @@
 ##' @export
 set_entropy <- function (graph, p) {
 
+  n <- nv(graph)
+
   ## get parameterizing sets
   paramSets <- subsetRep(graph, sort = 3)
-  ps <- powerSet(seq_len(nv(graph)))
+  ps <- powerSet(seq_len(n))
 
   ## determine which sets are in paramSets
   wh_set <- match(paramSets, ps)

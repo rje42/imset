@@ -1,13 +1,13 @@
 Package: imset
 Type: Package
 Title: Methods for imsets with mixed graphs
-Version: 0.0.3
+Version: 0.0.6
 Authors@R: person("Robin", "Evans", , "evans@stats.ox.ac.uk", role = c("aut", "cre"))
 Description: Methods for imsets with mixed graphs
-    and struff along those lines
+    and stuff along those lines
 Depends:
     R (>= 3.1),
-    rje,
+    rje (>= 1.10.17),
     MixedGraphs,
     ADMGs2,
     contingency
