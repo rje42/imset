@@ -155,36 +155,6 @@ char_imset.imset <- function(x) {
   out
 }
 
-##' @export
-as.imset <- function(x) {
-  n <- log2(length(x))
-  if (n != round(n)) stop("Length not a power of 2")
-  x <- as.integer(round(x))
-
-  nms <- ""
-  for (i in 1:n) {
-    nms <- c(nms, paste(nms, i, sep=""))
-  }
-  nms[1] = "0"
-  names(x) <- nms
-  class(x) <- "imset"
-
-  x
-}
-
-##' Print method for imsets
-##' @export
-print.imset <- function(x, only_nz = TRUE, ...) {
-  n <- log2(length(x))
-  cat("imset on ", n, " variables:\n", sep="")
-
-  if (only_nz) {
-    if (any(x != 0)) print.default(x[x != 0])
-    else cat("(all entries zero)\n")
-  }
-  else print.default(x[seq_along(x)])
-  invisible(x)
-}
 
 # imset2 <- function(graph) {
 #   out <- rep(0,2^(graph$n))
@@ -230,6 +200,12 @@ print.imset <- function(x, only_nz = TRUE, ...) {
 elemImset <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
   out <- rep(0,2^n)
 
+  if (length(intersect(A,B)) > 0) stop("sets A and B should not intersect")
+  if (length(intersect(c(A,B), C)) > 0) {
+    A <- setdiff(A, C)
+    B <- setdiff(B, C)
+  }
+
   wts <- 2^(seq_len(n)-1)
   wtC <- sum(wts[C])
   wtA <- sum(wts[A])
@@ -237,32 +213,6 @@ elemImset <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
   out[c(wtC, wtC+wtA, wtC+wtB, wtC+wtA+wtB)+1] = c(1,-1,-1,1)
 
   as.imset(out)
-}
-
-##' Overload addition for imsets
-##'
-##' @param e1,e2 two imsets
-##'
-##' @details This function is important, because it prevents accidentally
-##' adding imsets with a different number of variables to one another, and the
-##' recycling in R giving the wrong answer.
-##'
-##' @export
-`+.imset` <- function(e1, e2) {
-
-  if (length(e1) != length(e2)) {
-    if (length(e1) > length(e2))
-    {
-      tmp <- e2
-      e2 <- e1
-      e1 <- tmp
-    }
-    out <- e2
-    out[seq_along(e1)] <- out[seq_along(e1)] + e1
-    return(out)
-  }
-
-  NextMethod()
 }
 
 # gr <- graphCr("1->3<->2->4<->1", format = "ADMG")
