@@ -198,6 +198,8 @@ char_imset.imset <- function(x) {
 ##' with all but four entries zero.
 ##'
 elemImset <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
+  if (length(A) == 0 || length(B) == 0) return(zero_imset(n))
+
   out <- rep(0,2^n)
 
   if (length(intersect(A,B)) > 0) stop("sets A and B should not intersect")
