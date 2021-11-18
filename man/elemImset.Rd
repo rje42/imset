@@ -2,9 +2,12 @@
 % Please edit documentation in R/imsets.R
 \name{elemImset}
 \alias{elemImset}
+\alias{elemToIndep}
 \title{Get a (semi-)elementary imset}
 \usage{
 elemImset(A, B, C = integer(0), n = max(c(A, B, C)))
+
+elemToIndep(imset)
 }
 \arguments{
 \item{A, B, C}{disjoint subsets of 1,..,n}
@@ -19,3 +22,8 @@ as defined in Studeny (2006).
 Returns an imset, a vector of length \eqn{2^n}
 with all but four entries zero.
 }
+\section{Functions}{
+\itemize{
+\item \code{elemToIndep}: Construct conditional independence from elementary imset
+}}
+

@@ -52,7 +52,7 @@ isCombinatorial <- function(imset) {
   return(isComb2(imset))
 }
 
-isComb2 <- function (imset) {
+isComb2 <- function (imset, trace=FALSE) {
   if (all(imset == 0)) return(TRUE)
   wh <- max(which(imset != 0))
   if (imset[wh] < 0) return(FALSE)
@@ -62,13 +62,23 @@ isComb2 <- function (imset) {
   subsets <- combn(set, 2, simplify = FALSE)
 
   for (i in seq_along(subsets)) {
+    if (trace > 0) {
+      cat(paste(paste(rep("-", trace-1), collapse=""), " trying ", subsets[[i]][1],",", subsets[[i]][2],
+                         " | ", paste(setdiff(set, subsets[[i]]),collapse=""), "\n", sep=""))
+      # cat(paste("trying ", subsets[[i]][1],",", subsets[[i]][2],
+      #           paste(setdiff(set, subsets[[i]]),collapse=""), "\n"))
+      trace = trace + 1
+    }
     tmp <- Recall(imset - elemImset(subsets[[i]][1], subsets[[i]][2],
-                                    setdiff(set, subsets[[i]])))
+                                    setdiff(set, subsets[[i]])), trace=trace)
     if (tmp) {
-      print(c(subsets[[i]], setdiff(set, subsets[[i]])))
-      return(TRUE)
+      if (trace > 0) print(c(subsets[[i]], setdiff(set, subsets[[i]])))
+      out <- TRUE
+      attr(out, "elem") <- c(attr(tmp, "elem"), list(elemImset(subsets[[i]][1], subsets[[i]][2],
+                                                          setdiff(set, subsets[[i]]))))
+      return(out)
     }
   }
-
+  if (trace > 0) cat("path failed\n")
   return(FALSE)
 }

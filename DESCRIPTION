@@ -1,7 +1,7 @@
 Package: imset
 Type: Package
 Title: Methods for imsets with mixed graphs
-Version: 0.0.9
+Version: 0.0.10
 Authors@R: person("Robin", "Evans", , "evans@stats.ox.ac.uk", role = c("aut", "cre"))
 Description: Methods for imsets with mixed graphs
     and stuff along those lines
@@ -21,4 +21,4 @@ Suggests:
     knitr,
     testthat,
     rmarkdown,
-RoxygenNote: 7.1.1
+RoxygenNote: 7.1.2
