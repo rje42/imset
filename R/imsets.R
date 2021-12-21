@@ -87,7 +87,7 @@ standard_imset.mixedgraph <- function(x) {
   #   out[pa_set] <- out[pa_set] + 1
   #   out[pa_set+2^(seq_len(n)-1)] <- out[pa_set+2^(seq_len(n)-1)] - 1
   # }
-  {
+  if (is.ADMG(x)) {
     ht <- headsTails(x, r=FALSE)
 
     for (h in seq_along(ht$heads)) {
@@ -97,6 +97,11 @@ standard_imset.mixedgraph <- function(x) {
       out[idx] <- out[idx] - sgn
     }
   }
+  else if (is.UG(x)) {
+    clq <- cliques(x)
+    stop("Undirected graphs not yet implemented")
+  }
+  else stop("Graph must be an ADMG")
 
   out <- as.imset(out)
 
@@ -155,6 +160,57 @@ char_imset.imset <- function(x) {
   out
 }
 
+##' Get maximal positive/negative sets from imset
+##'
+##' Intended for a structural imset, obtain the maximal positive and negative
+##' sets in an imset.
+##'
+##' @param x imset
+##' @name envelopes
+NULL
+
+##' @describeIn envelopes Get maximal positive sets from imset
+##' @export
+upperEnvelope <- function(x) {
+  n <- log2(length(x))
+  Sm <- subsetMatrix(n)
+  wh <- which(x != 0)
+
+  out <- list()
+
+  while(any(x > 0)) {
+    if (x[last(wh)] < 0) stop("Not a stuctural imset")
+    out <- c(out, posToSubset(last(wh)))
+
+    ## now set subsets of this one to zero
+    x[Sm[last(wh),] != 0] <- 0
+    wh <- which(x != 0)
+  }
+  out <- unname(out)
+  out
+}
+
+## Get maximal negative sets from imset
+##' @describeIn envelopes Get maximal negative sets from imset
+##' @export
+lowerEnvelope <- function(x) {
+  n <- log2(length(x))
+  Sm <- subsetMatrix(n)
+  wh <- which(x < 0)
+
+  out <- list()
+
+  while(any(x < 0)) {
+    out <- c(out, posToSubset(last(wh)))
+
+    ## now set subsets of this one to zero
+    x[Sm[last(wh),] != 0] <- 0
+    wh <- which(x < 0)
+  }
+  out <- unname(out)
+  out
+}
+
 
 # imset2 <- function(graph) {
 #   out <- rep(0,2^(graph$n))
@@ -197,6 +253,7 @@ char_imset.imset <- function(x) {
 ##' @details Returns an imset, a vector of length \eqn{2^n}
 ##' with all but four entries zero.
 ##'
+
 ##' @export
 elemImset <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
 

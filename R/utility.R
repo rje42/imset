@@ -23,6 +23,23 @@ setSign <- function(h,t) {
   (-1)^(length(h)+1)*out
 }
 
+##' Vector of sizes for power set
+##'
+##' @param n size of set
+##' @param m maximum size to consider
+##'
+##' @details Uses Kronecker sum to obtain sizes of subsets in a conventionally
+##' ordered power set.
+##'
+setSize <- function(n, m=n) {
+  out <- 0
+  for (i in seq_len(n)) out <- kronecker(out, c(0,1), FUN="+")
+
+  out <- out[out <= m]
+
+  out
+}
+
 ##' Get entries in vector of subsets
 ##'
 ##' Gives location where set would appear in imset under

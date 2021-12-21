@@ -1,15 +1,16 @@
 Package: imset
 Type: Package
 Title: Methods for imsets with mixed graphs
-Version: 0.0.10
+Version: 0.1.0
 Authors@R: person("Robin", "Evans", , "evans@stats.ox.ac.uk", role = c("aut", "cre"))
 Description: Methods for imsets with mixed graphs
     and stuff along those lines
 Depends:
     R (>= 3.1),
     rje (>= 1.10.17),
+    lpSolve (>= 5.6.13.4),
     MixedGraphs,
-    ADMGs2,
+    ADMGs2 (>= 0.4.018),
     contingency
 Imports: methods, 
          graphics, 
@@ -22,3 +23,5 @@ Suggests:
     testthat,
     rmarkdown,
 RoxygenNote: 7.1.2
+Encoding: UTF-8
+
