@@ -87,7 +87,10 @@ test_indep <- function (imset, ci, timeout=60L) {
   if (out$status == 0) return(TRUE)
   else if (out$status == 2) return(FALSE)
   else if (out$status == 7) return(NA)
-  else stop("Unknown status")
+  else {
+    message(paste0("Unknown status: ", out$status))
+    return(NA)
+  }
 }
 
 ##' Check if the standard imset for a graph defines the model
