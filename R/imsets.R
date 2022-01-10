@@ -70,7 +70,8 @@ standard_imset.mixedgraph <- function(x) {
 
   n <- length(x$vnames)
   out <- rep(0, 2^n)
-  out[1] = -1; out[2^n] = 1
+  max_ent <- sum(2^(x$v-1))+1
+  out[1] = -1; out[max_ent] = 1
 
   # if (is.DAG(x)) {
   #   ## get entries associated with parent sets
