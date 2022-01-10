@@ -1,7 +1,6 @@
 # library(MixedGraphs)
 # library(ADMGs)
 
-
 # ##' Calculate the ?? imset of an ADMG
 # imset <- function(graph) {
 #   out <- rep(0,2^(graph$n))
@@ -66,11 +65,12 @@ setGeneric("char_imset")
 ##' @importFrom rje kronPower
 ##' @export
 standard_imset.mixedgraph <- function(x) {
-  if (!is.ADMG(x)) stop("This function only currently works for ADMGs")
+  if (!is_ADMG(x)) stop("This function only currently works for ADMGs")
 
   n <- length(x$vnames)
   out <- rep(0, 2^n)
-  out[1] = -1; out[2^n] = 1
+  max_ent <- sum(2^(x$v-1))+1
+  out[1] = -1; out[max_ent] = 1
 
   # if (is.DAG(x)) {
   #   ## get entries associated with parent sets
@@ -87,7 +87,7 @@ standard_imset.mixedgraph <- function(x) {
   #   out[pa_set] <- out[pa_set] + 1
   #   out[pa_set+2^(seq_len(n)-1)] <- out[pa_set+2^(seq_len(n)-1)] - 1
   # }
-  if (is.ADMG(x)) {
+  if (is_ADMG(x)) {
     ht <- headsTails(x, r=FALSE)
 
     for (h in seq_along(ht$heads)) {
@@ -97,7 +97,7 @@ standard_imset.mixedgraph <- function(x) {
       out[idx] <- out[idx] - sgn
     }
   }
-  else if (is.UG(x)) {
+  else if (is_UG(x)) {
     clq <- cliques(x)
     stop("Undirected graphs not yet implemented")
   }
@@ -121,6 +121,7 @@ standard_imset.imset <- function(x) {
 ##' @method char_imset mixedgraph
 ##' @export
 char_imset.mixedgraph <- function(x) {
+  if (!is_ADMG(x)) stop("This function only currently works for ADMGs")
   n <- length(x$vnames)
   out <- rep(0, 2^n)
   out[1] <- 1
@@ -225,7 +226,7 @@ lowerEnvelope <- function(x) {
 #
 #   for (i in seq_along(tmp$heads)) {
 #     # sets <- set(tmp$heads[[i]], tmp$tails[[i]])
-#     # locs <- wh_entries(sets)
+#     # locs <- setsToPos(sets)
 #     # sgn2 <- setSign(tmp$heads[[i]], tmp$tails[[i]])
 #     #
 #     # out2[locs] <- out2[locs] + sgn2
@@ -242,67 +243,3 @@ lowerEnvelope <- function(x) {
 #   out
 # }
 
-##' Get a (semi-)elementary imset
-##'
-##' Returns the semi-elementary imset \eqn{u_{\langle A, B | C \rangle}}{u<A, B | C>}
-##' as defined in Studeny (2006).
-##'
-##' @param A,B,C disjoint subsets of 1,..,n
-##' @param n number of variables involved
-##'
-##' @details Returns an imset, a vector of length \eqn{2^n}
-##' with all but four entries zero.
-##'
-
-##' @export
-elemImset <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
-
-  if (length(intersect(A,B)) > 0) stop("sets A and B should not intersect")
-  if (length(intersect(c(A,B), C)) > 0) {
-    A <- setdiff(A, C)
-    B <- setdiff(B, C)
-  }
-  if (length(A) == 0 || length(B) == 0) return(zero_imset(n))
-
-  ## compute entries in vector
-  wts <- 2^(seq_len(n)-1)
-  wtC <- sum(wts[C])
-  wtA <- sum(wts[A])
-  wtB <- sum(wts[B])
-
-  ## construct vector
-  out <- rep(0,2^n)
-  out[c(wtC, wtC+wtA, wtC+wtB, wtC+wtA+wtB)+1] = c(1,-1,-1,1)
-
-  as.imset(out)
-}
-
-# gr <- graphCr("1->3<->2->4<->1", format = "ADMG")
-# gr2 <- graphCr("1->3<-2->4<-1", format = "ADMG")
-#
-# all.equal(imset(gr), imset(gr2))
-#
-# imset(graphCr("1,2,3,4", format = "ADMG"))
-
-##' @describeIn elemImset Construct conditional independence from elementary imset
-##' @export
-elemToIndep <- function(imset) {
-  if (sum(imset != 0) != 4) stop("Not an elementary imset")
-
-  ## isolate sets
-  n <- log2(length(imset))
-  wh_cond <- as.integer(intToBits(which(imset > 0)[1]-1))
-  wh_indep1 <- as.integer(intToBits(which(imset < 0)[1]-1))
-  wh_indep2 <- as.integer(intToBits(which(imset < 0)[2]-1))
-
-  if (any(wh_indep1 - wh_cond < 0) ||any(wh_indep2 - wh_cond < 0)) stop("Not an elementary imset")
-
-  ## construct CI object
-  out <- list()
-  out[[1]] <- which(wh_indep1 - wh_cond > 0)
-  out[[2]] <- which(wh_indep2 - wh_cond > 0)
-  out[[3]] <- which(wh_cond > 0)
-
-  class(out) = "ci"
-  out
-}

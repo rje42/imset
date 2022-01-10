@@ -1,14 +1,14 @@
 Package: imset
 Type: Package
 Title: Methods for imsets with mixed graphs
-Version: 0.1.1
+Version: 0.2.0
 Authors@R: person("Robin", "Evans", , "evans@stats.ox.ac.uk", role = c("aut", "cre"))
 Description: Methods for imsets with mixed graphs
     and stuff along those lines
 Depends:
     R (>= 3.1),
     rje (>= 1.10.17),
-    lpSolve (>= 5.6.13.4),
+    lpSolve (>= 5.6),
     MixedGraphs,
     ADMGs2 (>= 0.4.018),
     contingency

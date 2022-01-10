@@ -40,30 +40,36 @@ setSize <- function(n, m=n) {
   out
 }
 
-##' Get entries in vector of subsets
-##'
-##' Gives location where set would appear in imset under
-##' lexicographic ordering.
-##'
-##' @param x list of positive integer subsets
-##'
-##' Given a subset of 1,2,3,... returns the location
-##' where set would appear in lexicographic order.
-##'
-##' @examples
-##' wh_entries(list(1, 3, 1:3))
-##' wh_entries(powerSet(1:3))
-##' wh_entries(1:3)
-##'
-wh_entries <- function(x) {
-  if (!is.list(x)) x <- list(x)
-  if (length(x) == 0) return(integer(0))
 
-  ## get maximum value
-  n <- max(unlist(x))
+##' @describeIn elem_imset
+##'
+##' @param ci object of class \code{ci}
+##' @param imset semi-elementary imset
+##'
+##' @export
+sei2ci <- function(imset) {
 
-  wgts <- 2^(seq_len(n)-1)
+  tmp <- posToSubset(which(imset != 0))
 
-  ## return locations in imset vector
-  sapply(x, function(x) sum(wgts[x])) + 1
+  if (length(tmp) == 0) return(as.ci(list(integer(0),integer(0))))
+  else if (length(tmp) != 4) stop("Not a semi-elementary imset")
+
+  out <- list()
+
+  A <- setdiff(tmp[[2]], tmp[[1]])
+  B <- setdiff(tmp[[3]], tmp[[1]])
+  C <- tmp[[1]]
+
+  out <- as.ci(list(A,B,C))
+  if (!setequal(tmp[[4]], c(A,B,C))) stop("Not a semi-elementary imset")
+
+  out
+}
+
+##' @describeIn elem_imset convert conditional independence to semi-elementary imset
+##' @export
+ci2sei <- function(ci, n=max(vars)) {
+  vars <- unlist(ci)
+
+  elem_imset(ci[[1]], ci[[2]], ci[[3]], n=n)
 }

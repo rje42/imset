@@ -4,7 +4,7 @@
 \alias{test_indep}
 \title{Test if an independence is represented in an imset}
 \usage{
-test_indep(imset, ci, timeout = 60L)
+test_indep(imset, ci, timeout)
 }
 \arguments{
 \item{imset}{an imset}
@@ -18,7 +18,9 @@ Test if an independence is represented in an imset
 }
 \details{
 Runs linear program suggested in Lindner (2012), Section 6.3.2. The
-timeout variable defaults to 60 seconds: using 0 means there is no limit.
+timeout variable defaults to 60 seconds: using 0 means there is no limit. If
+the version of \code{lpSolve} 5.6.13.4.9000 is not installed, then the
+timeout variable will not have any effect.
 }
 \references{
 Lindner (2012). \emph{Discrete optimisation in machine learning-learning of Bayesian network structures and conditional independence implication}, PhD Thesis, TUM.
