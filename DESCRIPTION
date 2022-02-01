@@ -9,7 +9,7 @@ Depends:
     R (>= 3.1),
     rje (>= 1.10.17),
     lpSolve (>= 5.6),
-    MixedGraphs,
+    MixedGraphs (>= 0.4.36),
     ADMGs2 (>= 0.4.018),
     contingency
 Imports: methods, 
