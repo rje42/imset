@@ -4,6 +4,7 @@ gen_constraints <- function (n) {
 
   prs <- combn(n, 2)
   M <- matrix(0, 2^n, choose(n,2)*2^(n-2))
+  colnames(M) <- character(ncol(M))
   idx <- 0
 
   for (i in seq_len(choose(n,2))) {
@@ -19,6 +20,9 @@ gen_constraints <- function (n) {
     to_fill <- cbind(vals+rep(basis,each=4), rep(seq_along(basis), each=4))
 
     M[,idx+seq_along(basis)][to_fill] <- c(1,-1,-1,1)
+    nms <- powerSet(seq_len(n)[-pr])
+    nms <- sapply(nms, paste0, collapse=",")
+    colnames(M)[idx+seq_along(basis)] <- paste(paste0(pr,collapse=","), "|", nms, sep="")
     idx <- idx + length(basis)
   }
 
@@ -40,7 +44,7 @@ gen_constraints <- function (n) {
 ##'
 ##' @references Lindner (2012). \emph{Discrete optimisation in machine learning-learning of Bayesian network structures and conditional independence implication}, PhD Thesis, TUM.
 ##'
-test_indep <- function (imset, ci, timeout) {
+test_indep <- function (imset, ci, timeout=60L) {
 
   n <- log2(length(imset))
   nc <- choose(n,2)*2^(n-2)
@@ -106,6 +110,137 @@ test_indep <- function (imset, ci, timeout) {
     return(NA)
   }
 }
+
+##' Check if the an imset is structural or combinatorial
+##'
+##' Uses linear programming to check whether imsets can be decomposed as
+##' elementary imsets.
+##'
+##' @param imset an imset to be tested
+##' @param timeout an integer giving the maximum run time for each linear program in seconds
+##'
+##' @details This requires version 5.6.13.4 or higher of \code{lpSolve} to be
+##' installed.  If the function returns \code{NA} then no independence was found
+##' to be not in the model but at least one of the linear programs timed out.
+##'
+##' @seealso \link{\code{defines_mod}}
+##'
+##' @export
+is_combinatorial <- function (imset, timeout=60L) {
+
+  n <- log2(length(imset))
+  nc <- choose(n,2)*2^(n-2)
+  nr <- 2^n
+
+  conMat <- gen_constraints(n)
+  # conMat2 <- cbind(matrix(conMat, ncol=nc), (-1)*imset)
+  conMat2 <- matrix(conMat, ncol=nc)
+  conMat2 <- rbind(conMat2, diag(nc))
+
+  dirs <- c(rep("==", nr), rep(">=", nc))
+
+  if (packageVersion("lpSolve") != '5.6.13.4.9000') {
+    if (!missing(timeout)) message("Wrong version of lpSolve installed, so timeout will not work")
+
+    out <- lp(direction="min", rep(0,nc),
+              # dense.const = spMat,
+              const.mat = conMat2,
+              const.dir = dirs,
+              const.rhs = c(imset, rep(0,nc)),
+              all.int = TRUE)
+  }
+  else {
+    out <- lp(direction="min", rep(0,nc),
+              # dense.const = spMat,
+              const.mat = conMat2,
+              const.dir = dirs,
+              const.rhs = c(imset, rep(0,nc)),
+              all.int = TRUE,
+              timeout = timeout)
+  }
+
+  if (out$status == 0) {
+    ret <- TRUE
+
+    sol <- out$solution
+
+    prs <- combn(n, 2)
+    for (i in seq_len(choose(n,2))) {
+      pr <- prs[,i]
+      nms <- powerSet(seq_len(n)[-pr])
+      nms <- sapply(nms, paste0, collapse=",")
+      names(sol)[2^(n-2)*(i-1)+seq_len(2^(n-2))] <- paste(paste0(pr,collapse=","), "|", nms, sep="")
+    }
+    attr(ret, "indeps") <- sol[sol != 0]
+    return(ret)
+  }
+  else if (out$status == 2) return(FALSE)
+  else if (out$status == 7) return(NA)
+  else {
+    message(paste0("Unknown status: ", out$status))
+    return(NA)
+  }
+}
+
+##' @describeIn is_combinatorial test if imset is structural
+##' @export
+is_structural <- function (imset, timeout=60L) {
+
+  n <- log2(length(imset))
+  nc <- choose(n,2)*2^(n-2)
+  nr <- 2^n
+
+  conMat <- gen_constraints(n)
+  conMat2 <- cbind(matrix(conMat, ncol=nc), (-1)*imset)
+  # conMat2 <- matrix(conMat, ncol=nc)
+  conMat2 <- rbind(conMat2, diag(nc+1))
+
+  dirs <- c(rep("==", nr), rep(">=", nc), ">=")
+
+  if (packageVersion("lpSolve") != '5.6.13.4.9000') {
+    if (!missing(timeout)) message("Wrong version of lpSolve installed, so timeout will not work")
+
+    out <- lp(direction="min", c(rep(0,nc+1)),
+              # dense.const = spMat,
+              const.mat = conMat2,
+              const.dir = dirs,
+              const.rhs = c(rep(0,nr+nc),1),
+              all.int = TRUE)
+  }
+  else {
+    out <- lp(direction="min", c(rep(0,nc+1)),
+              # dense.const = spMat,
+              const.mat = conMat2,
+              const.dir = dirs,
+              const.rhs = c(rep(0,nr+nc),1),
+              all.int = TRUE,
+              timeout = timeout)
+  }
+
+  if (out$status == 0) {
+    ret <- TRUE
+
+    sol <- out$solution[seq_len(nc)]
+
+    prs <- combn(n, 2)
+    for (i in seq_len(choose(n,2))) {
+      pr <- prs[,i]
+      nms <- powerSet(seq_len(n)[-pr])
+      nms <- sapply(nms, paste0, collapse=",")
+      names(sol)[2^(n-2)*(i-1)+seq_len(2^(n-2))] <- paste(paste0(pr,collapse=","), "|", nms, sep="")
+    }
+    attr(ret, "indeps") <- sol[sol != 0]
+    attr(ret, "k") <- last(out$solution)
+    return(ret)
+  }
+  else if (out$status == 2) return(FALSE)
+  else if (out$status == 7) return(NA)
+  else {
+    message(paste0("Unknown status: ", out$status))
+    return(NA)
+  }
+}
+
 
 ##' Check if the standard imset for a graph defines the model
 ##'

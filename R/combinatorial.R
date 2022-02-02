@@ -16,7 +16,7 @@
 ##' @seealso \code{\link{defines_mod}}
 ##'
 ##' @export
-is_combinatorial <- function(imset, use_char=TRUE, trace=FALSE) {
+exhaust_combinatorial <- function(imset, use_char=TRUE, trace=FALSE) {
   if (use_char) {
     imset2 <- 1 - char_imset.imset(imset)
     out <- isComb3(imset2, trace=trace)
@@ -42,9 +42,9 @@ is_combinatorial <- function(imset, use_char=TRUE, trace=FALSE) {
 ##' negative value.  In the latter case, we reject that sequence and try
 ##' another branch.  Once all branches are exhausted the algorithm fails.
 ##'
-##' It has been replaced by \code{is_combinatorial}
+##' It has been replaced by \code{exhaust_combinatorial}
 ##'
-##' @seealso \code{\link{defines_mod}}, \code{\link{is_combinatorial}}
+##' @seealso \code{\link{defines_mod}}, \code{\link{exhaust_combinatorial}}
 ##'
 ##' @name isCombinatorial-deprecated
 ##' @export

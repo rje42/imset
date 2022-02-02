@@ -4,7 +4,7 @@
 \alias{test_indep}
 \title{Test if an independence is represented in an imset}
 \usage{
-test_indep(imset, ci, timeout)
+test_indep(imset, ci, timeout = 60L)
 }
 \arguments{
 \item{imset}{an imset}
