@@ -1,16 +1,29 @@
 ##' Get a (semi-)elementary imset
 ##'
-##' Returns the semi-elementary imset \eqn{u_{\langle A, B | C \rangle}}{u<A, B | C>}
-##' as defined in Studeny (2006).
+##' Returns a semi-elementary imset \eqn{u_{\langle A, B | C \rangle}}{u<A, B | C>}
+##' (as defined in Studeny, 2005) given numeric arguments or a \code{ci} object.
 ##'
-##' @param A,B,C disjoint subsets of 1,..,n
-##' @param n number of variables involved
 ##'
 ##' @details Returns an imset, a vector of length \eqn{2^n}
 ##' with all but four entries zero.
 ##'
 ##' @export
-elem_imset <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
+##' Elementary imset
+##'
+##' @export
+elem_imset <- function(...) {
+  UseMethod("elem_imset")
+}
+
+setGeneric("elem_imset")
+
+
+##' @param A,B,C disjoint subsets of 1,..,n
+##' @param n number of variables involved
+##'
+##' @describeIn elem_imset Method for integer vectors
+##' @export
+elem_imset.default <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
 
   if (length(intersect(A,B)) > 0) stop("sets A and B should not intersect")
   if (length(intersect(c(A,B), C)) > 0) {
@@ -30,6 +43,14 @@ elem_imset <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
   out[c(wtC, wtC+wtA, wtC+wtB, wtC+wtA+wtB)+1] = c(1,-1,-1,1)
 
   as.imset(out)
+}
+
+##' @param ci object of class \code{ci}
+##' @describeIn elem_imset Method for \code{ci} object
+##' @export
+elem_imset.ci <- function(ci, n) {
+  if (missing(n)) n <- max(unlist(ci))
+  elem_imset.default(A=ci[[1]], B=ci[[2]], C=ci[[3]], n=n)
 }
 
 ##' Deprecated function for (semi-)elementary imsets

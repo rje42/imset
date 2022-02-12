@@ -36,7 +36,7 @@ identifier_imset <- function(A, n) {
   if (missing(n)) n <- max(A)
 
   out <- as.imset(rep(0, 2^n))
-  out[wh_entries(list(A))] <- 1
+  out[subsetToPos(list(A))] <- 1
 
   out
 }
