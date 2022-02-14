@@ -3,11 +3,14 @@
 \name{is_combinatorial}
 \alias{is_combinatorial}
 \alias{is_structural}
+\alias{imset_degree}
 \title{Check if the an imset is structural or combinatorial}
 \usage{
 is_combinatorial(imset, timeout = 60L)
 
 is_structural(imset, timeout = 60L)
+
+imset_degree(imset, timeout = 60L)
 }
 \arguments{
 \item{imset}{an imset to be tested}
@@ -26,6 +29,8 @@ to be not in the model but at least one of the linear programs timed out.
 \section{Functions}{
 \itemize{
 \item \code{is_structural}: test if imset is structural
+
+\item \code{imset_degree}: for a combinatorial imset, get its degree
 }}
 
 \seealso{

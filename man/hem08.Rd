@@ -15,6 +15,8 @@ This is an imset that is structural but not combinatorial.
 Code to recreate it is given below.
 }
 \examples{
+is_combinatorial(hem08)
+is_structural(hem08)
 
 ## code to recreate hem08
 u <- elem_imset(4, 5, 2) + elem_imset(4, 5, 3) +

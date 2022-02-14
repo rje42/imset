@@ -161,16 +161,8 @@ is_combinatorial <- function (imset, timeout=60L) {
 
   if (out$status == 0) {
     ret <- TRUE
-
     sol <- out$solution
-
-    prs <- combn(n, 2)
-    for (i in seq_len(choose(n,2))) {
-      pr <- prs[,i]
-      nms <- powerSet(seq_len(n)[-pr])
-      nms <- sapply(nms, paste0, collapse=",")
-      names(sol)[2^(n-2)*(i-1)+seq_len(2^(n-2))] <- paste(paste0(pr,collapse=","), "|", nms, sep="")
-    }
+    names(sol) <- indep_labels(n)
     attr(ret, "indeps") <- sol[sol != 0]
     return(ret)
   }
@@ -180,6 +172,24 @@ is_combinatorial <- function (imset, timeout=60L) {
     message(paste0("Unknown status: ", out$status))
     return(NA)
   }
+}
+
+indep_labels <- function(n) {
+  if (n <= 1) return(character(0))
+  len <- choose(n,2)*2^(n-2)
+  if (len > 1e6) warning("Very long vector being created")
+
+  prs <- combn(n, 2)
+  out <- character(len)
+
+  for (i in seq_len(choose(n,2))) {
+    pr <- prs[,i]
+    nms <- powerSet(seq_len(n)[-pr])
+    nms <- sapply(nms, paste0, collapse=",")
+    out[2^(n-2)*(i-1)+seq_len(2^(n-2))] <- paste(paste0(pr,collapse=","), ifelse(nchar(nms)>0,"|",""), nms, sep="")
+  }
+
+  out
 }
 
 ##' @describeIn is_combinatorial test if imset is structural
@@ -221,14 +231,8 @@ is_structural <- function (imset, timeout=60L) {
     ret <- TRUE
 
     sol <- out$solution[seq_len(nc)]
+    names(sol) <- indep_labels(n)
 
-    prs <- combn(n, 2)
-    for (i in seq_len(choose(n,2))) {
-      pr <- prs[,i]
-      nms <- powerSet(seq_len(n)[-pr])
-      nms <- sapply(nms, paste0, collapse=",")
-      names(sol)[2^(n-2)*(i-1)+seq_len(2^(n-2))] <- paste(paste0(pr,collapse=","), "|", nms, sep="")
-    }
     attr(ret, "indeps") <- sol[sol != 0]
     attr(ret, "k") <- last(out$solution)
     return(ret)
@@ -351,4 +355,12 @@ definesMod2 <- function (graph) {
     }
   }
   return(FALSE)
+}
+
+##' @describeIn is_combinatorial for a combinatorial imset, get its degree
+##' @export
+imset_degree <- function(imset, timeout=60L) {
+  out <- is_combinatorial(imset, timeout=timeout)
+  if (out) sum(attr(out, "indep"))
+  else NA
 }
