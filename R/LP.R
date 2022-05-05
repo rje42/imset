@@ -284,7 +284,6 @@ defines_mod <- function (graph, u, timeout=60L, trace=FALSE) {
   out
 }
 
-<<<<<<< HEAD
 ##' Check if the standard imset for a graph defines the model (deprecated)
 ##'
 ##' @param graph an ADMG in the form of a \code{mixedgraph} object
