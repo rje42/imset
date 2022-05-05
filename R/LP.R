@@ -123,7 +123,6 @@ test_indep <- function (imset, ci, timeout=60L) {
 ##' installed.  If the function returns \code{NA} then no independence was found
 ##' to be not in the model but at least one of the linear programs timed out.
 ##'
-##' @seealso \link{\code{defines_mod}}
 ##'
 ##' @export
 is_combinatorial <- function (imset, timeout=60L) {

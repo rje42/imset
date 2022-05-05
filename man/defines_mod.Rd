@@ -24,6 +24,3 @@ This requires version 5.6.13.4 or higher of \code{lpSolve} to be
 installed.  If the function returns \code{NA} then no independence was found
 to be not in the model but at least one of the linear programs timed out.
 }
-\seealso{
-\link{\code{is_combinatorial}}
-}

@@ -33,6 +33,3 @@ to be not in the model but at least one of the linear programs timed out.
 \item \code{imset_degree}: for a structural imset, get its degree
 }}
 
-\seealso{
-\link{\code{defines_mod}}
-}
