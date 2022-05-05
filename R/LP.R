@@ -357,10 +357,10 @@ definesMod2 <- function (graph) {
   return(FALSE)
 }
 
-##' @describeIn is_combinatorial for a combinatorial imset, get its degree
+##' @describeIn is_combinatorial for a structural imset, get its degree
 ##' @export
 imset_degree <- function(imset, timeout=60L) {
-  out <- is_combinatorial(imset, timeout=timeout)
+  out <- is_structural(imset, timeout=timeout)
   if (out) sum(attr(out, "indep"))
   else NA
 }
