@@ -8,9 +8,6 @@
 ##' with all but four entries zero.
 ##'
 ##' @export
-##' Elementary imset
-##'
-##' @export
 elem_imset <- function(...) {
   UseMethod("elem_imset")
 }

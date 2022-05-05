@@ -88,7 +88,7 @@ standard_imset.mixedgraph <- function(x) {
   #   out[pa_set+2^(seq_len(n)-1)] <- out[pa_set+2^(seq_len(n)-1)] - 1
   # }
   if (is_ADMG(x)) {
-    ht <- headsTails(x, r=FALSE)
+    ht <- headsTails3(x, r=FALSE)
 
     for (h in seq_along(ht$heads)) {
       idx <- sapply(powerSet(ht$heads[[h]]), function(x) sum(2^(x-1))) + 1
@@ -133,7 +133,7 @@ char_imset.mixedgraph <- function(x) {
     out[wh] <- 1
   }
 
-  ht <- ADMGs2::headsTails(x, r = FALSE)
+  ht <- ADMGs2::headsTails3(x, r = FALSE)
   if (length(ht$heads) > 0) {
     sets <- unlist(mapply(tailPowSet, ht$heads, ht$tails, SIMPLIFY = FALSE), recursive = FALSE)
     wh <- sapply(sets, function(v) sum(2^(v-1))+1)

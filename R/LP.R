@@ -286,81 +286,81 @@ defines_mod <- function (graph, u, timeout=60L, trace=FALSE) {
   out
 }
 
-##' Check if the standard imset for a graph defines the model (deprecated)
-##'
-##' @param graph an ADMG in the form of a \code{mixedgraph} object
-##' @param u optionally, an imset to test the constraints from the graph on
-##' (otherwise the 'standard' imset is used)
-##' @param timeout an integer giving the maximum run time for each linear program in seconds
-##' @param trace logical: should details be given of tests?
-##'
-##' @details This requires version 5.6.13.4 or higher of \code{lpSolve} to be
-##' installed.  If the function returns \code{NA} then no independence was found
-##' to be not in the model but at least one of the linear programs timed out.
-##'
-##' This function has been superseded by \code{defines_mod}.
-##'
-##' @seealso \link{\code{is_combinatorial}}, \link{\code{defines_mod}}
-##'
-##' @export
-definesMod <- function (graph, u, timeout=60L, trace=FALSE) {
-  .Deprecated("defines_mod")
+# ##' Check if the standard imset for a graph defines the model (deprecated)
+# ##'
+# ##' @param graph an ADMG in the form of a \code{mixedgraph} object
+# ##' @param u optionally, an imset to test the constraints from the graph on
+# ##' (otherwise the 'standard' imset is used)
+# ##' @param timeout an integer giving the maximum run time for each linear program in seconds
+# ##' @param trace logical: should details be given of tests?
+# ##'
+# ##' @details This requires version 5.6.13.4 or higher of \code{lpSolve} to be
+# ##' installed.  If the function returns \code{NA} then no independence was found
+# ##' to be not in the model but at least one of the linear programs timed out.
+# ##'
+# ##' This function has been superseded by \code{defines_mod}.
+# ##'
+# ##' @seealso \link{\code{is_combinatorial}}, \link{\code{defines_mod}}
+# ##'
+# ##' @export
+# definesMod <- function (graph, u, timeout=60L, trace=FALSE) {
+#   .Deprecated("defines_mod")
+#
+#   if (missing(u)) u <- standard_imset(graph)
+#   mod <- ADMGs2::localMarkovProperty(graph, split=TRUE)
+#   out <- TRUE
+#
+#   if (packageVersion("lpSolve") != '5.6.13.4.9000' && !missing(timeout)) {
+#     message("Wrong version of lpSolve installed, so timeout will not work")
+#     timeout = NA
+#   }
+#
+#   for (k in seq_along(mod)) {
+#     if (trace) {
+#       cat("Testing independence: ")
+#       print(mod[[k]])
+#     }
+#     if (is.na(timeout)) ind_k <- test_indep(u, mod[[k]])
+#     else ind_k <- test_indep(u, mod[[k]], timeout=timeout)
+#     if (is.na(ind_k)) out <- NA
+#     else if(!ind_k) out <- FALSE
+#
+#     if (isFALSE(out)) break
+#   }
+#   out
+# }
+#
+# definesMod2 <- function (graph) {
+#   U <- standard_imset(graph)
+#
+#   for (i in graph$v[-length(graph$v)]) for (j in graph$v[-seq_len(i)]) {
+#     if (j %in% adj(graph, i)) next
+#
+#     non_m_seps <- list()
+#     for (k in powerSet(setdiff(graph$v, c(i,j)))) {
+#       # print(k)
+#       if (!m_sep(graph, i, j, k)) {
+#         non_m <- list(i,j,k)
+#         class(non_m) <- "ci"
+#         # print(non_m)
+#         non_m_seps <- c(non_m_seps, list(non_m))
+#       }
+#     }
+#
+#     ## run linear programs
+#     for (k in seq_along(non_m_seps)) {
+#       print(non_m_seps[[k]])
+#       ind <- test_indep(U, non_m_seps[[k]])
+#       if (ind) stop()
+#     }
+#   }
+#   return(FALSE)
+# }
 
-  if (missing(u)) u <- standard_imset(graph)
-  mod <- ADMGs2::localMarkovProperty(graph, split=TRUE)
-  out <- TRUE
-
-  if (packageVersion("lpSolve") != '5.6.13.4.9000' && !missing(timeout)) {
-    message("Wrong version of lpSolve installed, so timeout will not work")
-    timeout = NA
-  }
-
-  for (k in seq_along(mod)) {
-    if (trace) {
-      cat("Testing independence: ")
-      print(mod[[k]])
-    }
-    if (is.na(timeout)) ind_k <- test_indep(u, mod[[k]])
-    else ind_k <- test_indep(u, mod[[k]], timeout=timeout)
-    if (is.na(ind_k)) out <- NA
-    else if(!ind_k) out <- FALSE
-
-    if (isFALSE(out)) break
-  }
-  out
-}
-
-definesMod2 <- function (graph) {
-  U <- standard_imset(graph)
-
-  for (i in graph$v[-length(graph$v)]) for (j in graph$v[-seq_len(i)]) {
-    if (j %in% adj(graph, i)) next
-
-    non_m_seps <- list()
-    for (k in powerSet(setdiff(graph$v, c(i,j)))) {
-      # print(k)
-      if (!m_sep(graph, i, j, k)) {
-        non_m <- list(i,j,k)
-        class(non_m) <- "ci"
-        # print(non_m)
-        non_m_seps <- c(non_m_seps, list(non_m))
-      }
-    }
-
-    ## run linear programs
-    for (k in seq_along(non_m_seps)) {
-      print(non_m_seps[[k]])
-      ind <- test_indep(U, non_m_seps[[k]])
-      if (ind) stop()
-    }
-  }
-  return(FALSE)
-}
-
-##' @describeIn is_combinatorial for a combinatorial imset, get its degree
+##' @describeIn is_combinatorial for a structural imset, get its degree
 ##' @export
 imset_degree <- function(imset, timeout=60L) {
-  out <- is_combinatorial(imset, timeout=timeout)
+  out <- is_structural(imset, timeout=timeout)
   if (out) sum(attr(out, "indep"))
   else NA
 }

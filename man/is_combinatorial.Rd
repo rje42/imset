@@ -30,7 +30,7 @@ to be not in the model but at least one of the linear programs timed out.
 \itemize{
 \item \code{is_structural}: test if imset is structural
 
-\item \code{imset_degree}: for a combinatorial imset, get its degree
+\item \code{imset_degree}: for a structural imset, get its degree
 }}
 
 \seealso{
