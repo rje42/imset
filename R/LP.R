@@ -357,6 +357,7 @@ defines_mod <- function (graph, u, timeout=60L, trace=FALSE) {
 #   return(FALSE)
 # }
 
+
 ##' @describeIn is_combinatorial for a structural imset, get its degree
 ##' @export
 imset_degree <- function(imset, timeout=60L) {
