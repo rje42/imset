@@ -4,7 +4,7 @@
 \alias{test_indep}
 \title{Test if an independence is represented in an imset}
 \usage{
-test_indep(imset, ci, timeout = 60L)
+test_indep(imset, ci, consMat, timeout = 60L, sparse = FALSE)
 }
 \arguments{
 \item{imset}{an imset}
@@ -12,6 +12,8 @@ test_indep(imset, ci, timeout = 60L)
 \item{ci}{a conditional independence}
 
 \item{timeout}{a timeout for the linear program solver in seconds}
+
+\item{sparse}{logical: use sparse matrix?}
 }
 \description{
 Test if an independence is represented in an imset

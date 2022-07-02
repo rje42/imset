@@ -19,3 +19,13 @@
 ##'
 ##' @references Hemmecke et al. (2008) Three Counter-Examples on Semi-Graphoids, \emph{Combinatorics Probability and Computing}, 17(2):239-257.
 "hem08"
+
+##' Pair of bidirected graphs
+##'
+##' Two graphs, \code{gr1a} and \code{gr1b}, that differ by one edge, but one
+##' (\code{gr1a}) is perfectly Markovian with respect to its standard imset,
+##' and the other (\code{gr1b}) is not.
+##'
+##' @aliases gr1a gr1b
+##'
+"gr1a"

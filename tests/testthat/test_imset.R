@@ -1,4 +1,4 @@
-elem <- elemImset(1,2,3,n=4)
+elem <- elem_imset(1,2,3,n=4)
 c_elem <- char_imset(elem)
 elem2 <- standard_imset(c_elem)
 

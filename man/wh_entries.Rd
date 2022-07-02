@@ -17,8 +17,8 @@ Gives location where set would appear in imset under
 lexicographic ordering.
 }
 \examples{
-wh_entries(list(1, 3, 1:3))
-wh_entries(powerSet(1:3))
-wh_entries(1:3)
+imset:::wh_entries(list(1, 3, 1:3))
+imset:::wh_entries(powerSet(1:3))
+imset:::wh_entries(1:3)
 
 }

@@ -6,9 +6,9 @@
 \alias{imset_degree}
 \title{Check if the an imset is structural or combinatorial}
 \usage{
-is_combinatorial(imset, timeout = 60L)
+is_combinatorial(imset, timeout = 60L, sparse = FALSE)
 
-is_structural(imset, timeout = 60L)
+is_structural(imset, timeout = 60L, sparse = FALSE)
 
 imset_degree(imset, timeout = 60L)
 }
@@ -16,15 +16,16 @@ imset_degree(imset, timeout = 60L)
 \item{imset}{an imset to be tested}
 
 \item{timeout}{an integer giving the maximum run time for each linear program in seconds}
+
+\item{sparse}{should sparse matrices be used?}
 }
 \description{
 Uses linear programming to check whether imsets can be decomposed as
 elementary imsets.
 }
 \details{
-This requires version 5.6.13.4 or higher of \code{lpSolve} to be
-installed.  If the function returns \code{NA} then no independence was found
-to be not in the model but at least one of the linear programs timed out.
+For the \code{timeout} operator to work we require version 5.6.13.4.9000
+of \code{lpSolve} to be installed.
 }
 \section{Functions}{
 \itemize{

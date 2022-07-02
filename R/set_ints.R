@@ -32,9 +32,9 @@ subsetToPos <- function(y) {
 ##' where set would appear in lexicographic order.
 ##'
 ##' @examples
-##' wh_entries(list(1, 3, 1:3))
-##' wh_entries(powerSet(1:3))
-##' wh_entries(1:3)
+##' imset:::wh_entries(list(1, 3, 1:3))
+##' imset:::wh_entries(powerSet(1:3))
+##' imset:::wh_entries(1:3)
 ##'
 wh_entries <- function(x) {
   .Deprecated(subsetToPos, msg="Function deprecated, use subsetToPos() instead")

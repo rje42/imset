@@ -1,32 +1,47 @@
-gen_constraints <- function (n) {
+gen_constraints <- function (n, sparse=FALSE) {
+  if (sparse) require(Matrix)
   if (n < 0) stop("n must be non-negative")
-  if (n <= 1) return(matrix(NA, nrow=0, ncol=n+1))
+  if (n <= 1) return(matrix(NA, ncol=0, nrow=n+1))
 
-  prs <- combn(n, 2)
-  M <- matrix(0, 2^n, choose(n,2)*2^(n-2))
-  colnames(M) <- character(ncol(M))
+  ## get pairs
+  prs <- combn(n, 2) - 1
   idx <- 0
+
+  if (sparse) {
+    M <- new("dgTMatrix",
+             i = integer(0),
+             j = integer(0),
+             x = numeric(0),
+             Dim = as.integer(c(2^n, choose(n,2)*2^(n-2))))
+  }
+  else M <- matrix(0, 2^n, choose(n,2)*2^(n-2))
+
+  colnames(M) <- character(ncol(M))
 
   for (i in seq_len(choose(n,2))) {
     pr <- prs[,i]
-    # rje::powerSet(seq_len(n-2))
-    vals <- c(0,2^(pr[1]-1),2^(pr[2]-1),2^(pr[1]-1)+2^(pr[2]-1))
+    vals <- c(0, 2^pr[1], 2^pr[2], 2^pr[1] + 2^pr[2])
 
-    basis <- seq_len(2^n)
-    kp <- rep(c(TRUE,FALSE), each=2^(pr[1]-1))
-    kp <- kp*rep(c(TRUE,FALSE), each=2^(pr[2]-1))
-    basis <- basis[kp > 0]
+    kp <- rep(c(TRUE,FALSE), each=2^pr[1])
+    kp <- kp*rep(c(TRUE,FALSE), each=2^pr[2])
+    basis <- seq_len(2^n)[kp > 0] - 1
 
-    to_fill <- cbind(vals+rep(basis,each=4), rep(seq_along(basis), each=4))
+    rows <- vals + rep(basis,each=4)
+    cols <- idx + rep(seq_len(2^(n-2))-1, each=4)
+    vals <- c(1,-1,-1,1)
 
-    M[,idx+seq_along(basis)][to_fill] <- c(1,-1,-1,1)
-    nms <- powerSet(seq_len(n)[-pr])
+    M[cbind(rows, cols) + 1] <- vals
+
+    ## get column names
+    nms <- powerSet(seq_len(n)[-(pr+1)])
     nms <- sapply(nms, paste0, collapse=",")
-    colnames(M)[idx+seq_along(basis)] <- paste(paste0(pr,collapse=","), "|", nms, sep="")
+    colnames(M)[idx+seq_len(2^(n-2))] <- paste(paste0(pr+1,collapse=","), "|", nms, sep="")
+
+    ## advance column counter
     idx <- idx + length(basis)
   }
 
-  M
+  return(M)
 }
 
 ##' Test if an independence is represented in an imset
@@ -34,6 +49,7 @@ gen_constraints <- function (n) {
 ##' @param imset an imset
 ##' @param ci a conditional independence
 ##' @param timeout a timeout for the linear program solver in seconds
+##' @param sparse logical: use sparse matrix?
 ##'
 ##' @details Runs linear program suggested in Lindner (2012), Section 6.3.2. The
 ##' timeout variable defaults to 60 seconds: using 0 means there is no limit. If
@@ -44,7 +60,7 @@ gen_constraints <- function (n) {
 ##'
 ##' @references Lindner (2012). \emph{Discrete optimisation in machine learning-learning of Bayesian network structures and conditional independence implication}, PhD Thesis, TUM.
 ##'
-test_indep <- function (imset, ci, timeout=60L) {
+test_indep <- function (imset, ci, consMat, timeout=60L, sparse=FALSE) {
 
   n <- log2(length(imset))
   nc <- choose(n,2)*2^(n-2)
@@ -52,15 +68,25 @@ test_indep <- function (imset, ci, timeout=60L) {
 
   v <- elem_imset(ci[[1]], ci[[2]], ci[[3]], n=n)
 
-  conMat <- gen_constraints(n)
-  conMat2 <- cbind(matrix(conMat, ncol=nc), (-1)*imset)
-  conMat2 <- rbind(conMat2, diag(nc+1))
+  if (missing(consMat)) {
+    consMat <- gen_constraints(n, sparse=sparse)
+    if (sparse) {
+      consMat2 <- cbind(consMat@i+1, consMat@j+1, consMat@x)
+      imset <- cbind(which(imset != 0), nc+1, -imset[imset != 0])
+      diag <- cbind(nr + seq_len(nc+1), seq_len(nc+1), 1)
+      consMat2 <- rbind(consMat2, imset, diag)
+    }
+    else {
+      consMat2 <- cbind(matrix(consMat, ncol=nc), (-1)*imset)
+      consMat2 <- rbind(consMat2, diag(nc+1))
+    }
+    consMat <- consMat2
+  }
+  # else sparse <- !is.matrix(consMat)
+# for (i in seq_len(nr)) consMat2 <- cbind(consMat2, 0)
 
-
-# for (i in seq_len(nr)) conMat2 <- cbind(conMat2, 0)
-
-# col <- rep(seq_len(nc), times=diff(conMat@p))
-# row <- conMat@i+1
+# col <- rep(seq_len(nc), times=diff(consMat@p))
+# row <- consMat@i+1
 # val <- c(1,-1,-1,1)
 # spMat <- cbind(row,col,val)
 
@@ -68,9 +94,9 @@ test_indep <- function (imset, ci, timeout=60L) {
 ## check if elem_imset is contained in structural imset
 # which(u != 0)
 #
-# conMat2 <- rbind(conMat2, c(rep(1,nc),(-1)*u))
-# conMat2 <- rbind(conMat2, do.call(cbind, c(rep(list(0), nc), list(cbind(diag(nr-1), -1)))))
-# matrix(conMat2, nrow=nrow(conMat2))
+# consMat2 <- rbind(consMat2, c(rep(1,nc),(-1)*u))
+# consMat2 <- rbind(consMat2, do.call(cbind, c(rep(list(0), nc), list(cbind(diag(nr-1), -1)))))
+# matrix(consMat2, nrow=nrow(consMat2))
 #
 # spMat <- rbind(spMat,
 #                cbind(rep(nr+1,nc), seq_len(nc), 1),
@@ -86,21 +112,38 @@ test_indep <- function (imset, ci, timeout=60L) {
   if (packageVersion("lpSolve") != '5.6.13.4.9000') {
     if (!missing(timeout)) message("Wrong version of lpSolve installed, so timeout will not work")
 
-    out <- lp(direction="min", rep(0,nc+1),
-              # dense.const = spMat,
-              const.mat = conMat2,
-              const.dir = dirs,
-              const.rhs = c((-1)*v, rep(0,nc+1)),
-              all.int = TRUE)
+    if (sparse) {
+      out <- lp(direction="min", rep(0,nc+1),
+                dense.const = consMat,
+                const.dir = dirs,
+                const.rhs = c((-1)*v, rep(0,nc+1)),
+                all.int = TRUE)
+    }
+    else {
+      out <- lp(direction="min", rep(0,nc+1),
+                const.mat = consMat,
+                const.dir = dirs,
+                const.rhs = c((-1)*v, rep(0,nc+1)),
+                all.int = TRUE)
+    }
   }
   else {
-    out <- lp(direction="min", rep(0,nc+1),
-              # dense.const = spMat,
-              const.mat = conMat2,
-              const.dir = dirs,
-              const.rhs = c((-1)*v, rep(0,nc+1)),
-              all.int = TRUE,
-              timeout = timeout)
+    if (sparse) {
+      out <- lp(direction="min", rep(0,nc+1),
+                dense.const = consMat,
+                const.dir = dirs,
+                const.rhs = c((-1)*v, rep(0,nc+1)),
+                all.int = TRUE,
+                timeout = timeout)
+    }
+    else {
+      out <- lp(direction="min", rep(0,nc+1),
+                const.mat = consMat,
+                const.dir = dirs,
+                const.rhs = c((-1)*v, rep(0,nc+1)),
+                all.int = TRUE,
+                timeout = timeout)
+    }
   }
   if (out$status == 0) return(TRUE)
   else if (out$status == 2) return(FALSE)
@@ -118,44 +161,67 @@ test_indep <- function (imset, ci, timeout=60L) {
 ##'
 ##' @param imset an imset to be tested
 ##' @param timeout an integer giving the maximum run time for each linear program in seconds
+##' @param sparse should sparse matrices be used?
 ##'
-##' @details This requires version 5.6.13.4 or higher of \code{lpSolve} to be
-##' installed.  If the function returns \code{NA} then no independence was found
-##' to be not in the model but at least one of the linear programs timed out.
+##' @details For the \code{timeout} operator to work we require version 5.6.13.4.9000
+##' of \code{lpSolve} to be installed.
 ##'
 ##'
 ##' @export
-is_combinatorial <- function (imset, timeout=60L) {
+is_combinatorial <- function (imset, timeout=60L, sparse=FALSE) {
 
   n <- log2(length(imset))
   nc <- choose(n,2)*2^(n-2)
   nr <- 2^n
 
-  conMat <- gen_constraints(n)
-  # conMat2 <- cbind(matrix(conMat, ncol=nc), (-1)*imset)
-  conMat2 <- matrix(conMat, ncol=nc)
-  conMat2 <- rbind(conMat2, diag(nc))
-
+  consMat <- gen_constraints(n, sparse=sparse)
+  if (sparse) {
+    consMat2 <- cbind(consMat@i+1, consMat@j+1, consMat@x)
+    diag <- cbind(nr + seq_len(nc), seq_len(nc), 1)
+    consMat2 <- rbind(consMat2, diag)
+  }
+  else {
+    # consMat2 <- cbind(matrix(consMat, ncol=nc), (-1)*imset)
+    consMat2 <- matrix(consMat, ncol=nc)
+    consMat2 <- rbind(consMat2, diag(nc))
+  }
   dirs <- c(rep("==", nr), rep(">=", nc))
 
   if (packageVersion("lpSolve") != '5.6.13.4.9000') {
     if (!missing(timeout)) message("Wrong version of lpSolve installed, so timeout will not work")
 
-    out <- lp(direction="min", rep(0,nc),
-              # dense.const = spMat,
-              const.mat = conMat2,
+    if (sparse) {
+      out <- lp(direction="min", rep(0,nc),
+                dense.const = consMat2,
+                const.dir = dirs,
+                const.rhs = c(imset, rep(0,nc)),
+                all.int = TRUE)
+    }
+    else {
+      out <- lp(direction="min", rep(0,nc),
+              const.mat = consMat2,
               const.dir = dirs,
               const.rhs = c(imset, rep(0,nc)),
               all.int = TRUE)
+    }
   }
   else {
-    out <- lp(direction="min", rep(0,nc),
-              # dense.const = spMat,
-              const.mat = conMat2,
-              const.dir = dirs,
-              const.rhs = c(imset, rep(0,nc)),
-              all.int = TRUE,
-              timeout = timeout)
+    if (sparse) {
+      out <- lp(direction="min", rep(0,nc),
+                dense.const = consMat2,
+                const.dir = dirs,
+                const.rhs = c(imset, rep(0,nc)),
+                all.int = TRUE,
+                timeout = timeout)
+    }
+    else {
+      out <- lp(direction="min", rep(0,nc),
+                const.mat = consMat2,
+                const.dir = dirs,
+                const.rhs = c(imset, rep(0,nc)),
+                all.int = TRUE,
+                timeout = timeout)
+    }
   }
 
   if (out$status == 0) {
@@ -193,37 +259,62 @@ indep_labels <- function(n) {
 
 ##' @describeIn is_combinatorial test if imset is structural
 ##' @export
-is_structural <- function (imset, timeout=60L) {
+is_structural <- function (imset, timeout=60L, sparse=FALSE) {
 
   n <- log2(length(imset))
   nc <- choose(n,2)*2^(n-2)
   nr <- 2^n
 
-  conMat <- gen_constraints(n)
-  conMat2 <- cbind(matrix(conMat, ncol=nc), (-1)*imset)
-  # conMat2 <- matrix(conMat, ncol=nc)
-  conMat2 <- rbind(conMat2, diag(nc+1))
+  consMat <- gen_constraints(n, sparse=sparse)
+  if (sparse) {
+    consMat2 <- cbind(consMat@i+1, consMat@j+1, consMat@x)
+    imset <- cbind(which(imset != 0), nc+1, -imset[imset != 0])
+    diag <- cbind(nr + seq_len(nc+1), seq_len(nc+1), 1)
+    consMat2 <- rbind(consMat2, imset, diag)
+  }
+  else {
+    consMat2 <- cbind(matrix(consMat, ncol=nc), (-1)*imset)
+    # consMat2 <- matrix(consMat, ncol=nc)
+    consMat2 <- rbind(consMat2, diag(nc+1))
+  }
 
   dirs <- c(rep("==", nr), rep(">=", nc), ">=")
 
   if (packageVersion("lpSolve") != '5.6.13.4.9000') {
     if (!missing(timeout)) message("Wrong version of lpSolve installed, so timeout will not work")
 
-    out <- lp(direction="min", c(rep(0,nc+1)),
-              # dense.const = spMat,
-              const.mat = conMat2,
-              const.dir = dirs,
-              const.rhs = c(rep(0,nr+nc),1),
-              all.int = TRUE)
+    if (sparse) {
+      out <- lp(direction="min", c(rep(0,nc+1)),
+                dense.const = consMat2,
+                const.dir = dirs,
+                const.rhs = c(rep(0,nr+nc),1),
+                all.int = TRUE)
+    }
+    else {
+      out <- lp(direction="min", c(rep(0,nc+1)),
+                const.mat = consMat2,
+                const.dir = dirs,
+                const.rhs = c(rep(0,nr+nc),1),
+                all.int = TRUE)
+    }
   }
   else {
-    out <- lp(direction="min", c(rep(0,nc+1)),
-              # dense.const = spMat,
-              const.mat = conMat2,
-              const.dir = dirs,
-              const.rhs = c(rep(0,nr+nc),1),
-              all.int = TRUE,
-              timeout = timeout)
+    if (sparse) {
+      out <- lp(direction="min", c(rep(0,nc+1)),
+                dense.const = consMat2,
+                const.dir = dirs,
+                const.rhs = c(rep(0,nr+nc),1),
+                all.int = TRUE,
+                timeout = timeout)
+    }
+    else {
+      out <- lp(direction="min", c(rep(0,nc+1)),
+                const.mat = consMat2,
+                const.dir = dirs,
+                const.rhs = c(rep(0,nr+nc),1),
+                all.int = TRUE,
+                timeout = timeout)
+    }
   }
 
   if (out$status == 0) {
@@ -252,13 +343,14 @@ is_structural <- function (imset, timeout=60L) {
 ##' (otherwise the 'standard' imset is used)
 ##' @param timeout an integer giving the maximum run time for each linear program in seconds
 ##' @param trace logical: should details be given of tests?
+##' @param sparse logical: use sparse matrix?
 ##'
-##' @details This requires version 5.6.13.4 or higher of \code{lpSolve} to be
+##' @details The \code{timeout} argument requires version 5.6.13.4.9000 of \code{lpSolve} to be
 ##' installed.  If the function returns \code{NA} then no independence was found
 ##' to be not in the model but at least one of the linear programs timed out.
 ##'
 ##' @export
-defines_mod <- function (graph, u, timeout=60L, trace=FALSE) {
+defines_mod <- function (graph, u, timeout=60L, trace=FALSE, sparse=FALSE) {
   if (missing(u)) u <- standard_imset(graph)
   mod <- ADMGs2::localMarkovProperty(graph, split=TRUE)
   out <- TRUE
@@ -268,13 +360,32 @@ defines_mod <- function (graph, u, timeout=60L, trace=FALSE) {
     timeout = NA
   }
 
+  ## get constraint matrix
+  n <- log2(length(u))
+  consMat <- gen_constraints(n, sparse = sparse)
+
+  if (sparse) {
+    nc <- ncol(consMat)
+    nr <- nrow(consMat)
+
+    consMat2 <- cbind(consMat@i+1, consMat@j+1, consMat@x)
+    imset <- cbind(which(u != 0), nc+1, -u[u != 0])
+    diag <- cbind(nr + seq_len(nc+1), seq_len(nc+1), 1)
+    consMat <- rbind(consMat2, imset, diag)
+  }
+  else {
+    consMat <- cbind(consMat, (-1)*u)
+    consMat <- rbind(consMat, diag(ncol(consMat)))
+  }
+
+  ## now check each independence is represented
   for (k in seq_along(mod)) {
     if (trace) {
       cat("Testing independence: ")
       print(mod[[k]])
     }
     if (is.na(timeout)) ind_k <- test_indep(u, mod[[k]])
-    else ind_k <- test_indep(u, mod[[k]], timeout=timeout)
+    else ind_k <- test_indep(u, mod[[k]], consMat=consMat, timeout=timeout, sparse=sparse)
     if (is.na(ind_k)) out <- NA
     else if(!ind_k) out <- FALSE
 
