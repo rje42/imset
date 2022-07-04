@@ -4,7 +4,14 @@
 \alias{defines_mod}
 \title{Check if the standard imset for a graph defines the model}
 \usage{
-defines_mod(graph, u, timeout = 60L, trace = FALSE, sparse = FALSE)
+defines_mod(
+  graph,
+  u,
+  timeout = 60L,
+  trace = FALSE,
+  sparse = FALSE,
+  rmv_edges = FALSE
+)
 }
 \arguments{
 \item{graph}{an ADMG in the form of a \code{mixedgraph} object}
@@ -17,6 +24,8 @@ defines_mod(graph, u, timeout = 60L, trace = FALSE, sparse = FALSE)
 \item{trace}{logical: should details be given of tests?}
 
 \item{sparse}{logical: use sparse matrix?}
+
+\item{rmv_edges}{logical: only use missing edges in the graph in the constraint matrix?}
 }
 \description{
 Check if the standard imset for a graph defines the model
