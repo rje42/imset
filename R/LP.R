@@ -1,4 +1,4 @@
-gen_constraints <- function (n, sparse=FALSE) {
+gen_constraints <- function (n, sparse=FALSE, reduce=NULL) {
   if (sparse) require(Matrix)
   if (n < 0) stop("n must be non-negative")
   if (n <= 1) return(matrix(NA, ncol=0, nrow=n+1))
@@ -6,6 +6,8 @@ gen_constraints <- function (n, sparse=FALSE) {
   ## get pairs
   prs <- combn(n, 2) - 1
   idx <- 0
+  if (!is.null(reduce)) reduce <- lapply(reduce, sort.int)
+  else reduce <- list()
 
   if (sparse) {
     M <- new("dgTMatrix",
@@ -19,6 +21,7 @@ gen_constraints <- function (n, sparse=FALSE) {
   colnames(M) <- character(ncol(M))
 
   for (i in seq_len(choose(n,2))) {
+    if (setmatch(list(prs[,i]+1), reduce, nomatch = 0L) > 0) next
     pr <- prs[,i]
     vals <- c(0, 2^pr[1], 2^pr[2], 2^pr[1] + 2^pr[2])
 
@@ -344,14 +347,20 @@ is_structural <- function (imset, timeout=60L, sparse=FALSE) {
 ##' @param timeout an integer giving the maximum run time for each linear program in seconds
 ##' @param trace logical: should details be given of tests?
 ##' @param sparse logical: use sparse matrix?
+##' @param rmv_edges logical: only use missing edges in the graph in the constraint matrix?
 ##'
 ##' @details The \code{timeout} argument requires version 5.6.13.4.9000 of \code{lpSolve} to be
 ##' installed.  If the function returns \code{NA} then no independence was found
 ##' to be not in the model but at least one of the linear programs timed out.
 ##'
 ##' @export
-defines_mod <- function (graph, u, timeout=60L, trace=FALSE, sparse=FALSE) {
+defines_mod <- function (graph, u, timeout=60L, trace=FALSE, sparse=FALSE,
+                         rmv_edges=FALSE) {
   if (missing(u)) u <- standard_imset(graph)
+  if (rmv_edges) {
+    nind <- withEdgeList(morphEdges(graph, to="undirected"))$edges$undirected
+  }
+  else nind <- list()
   mod <- ADMGs2::localMarkovProperty(graph, split=TRUE)
   out <- TRUE
 
@@ -362,7 +371,7 @@ defines_mod <- function (graph, u, timeout=60L, trace=FALSE, sparse=FALSE) {
 
   ## get constraint matrix
   n <- log2(length(u))
-  consMat <- gen_constraints(n, sparse = sparse)
+  consMat <- gen_constraints(n, sparse = sparse, reduce=nind)
 
   if (sparse) {
     nc <- ncol(consMat)
