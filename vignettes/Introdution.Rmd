@@ -52,7 +52,20 @@ represent any of the independences in the expansion on the right-hand side of
 
 ### The Package
 
-We can load the package in the usual manner.
+You will need the libraries `rje`, `contingency` and `lpSolve` which are available both from
+CRAN and from the GitHub page `rje42`.  You will also need the packages 
+`MixedGraphs`, `ADMGs2` and `imset`, which are currently only available 
+from `rje42`.  
+```{r install}
+# devtools::install_github("rje42/rje")
+# devtools::install_github("rje42/contingency")
+# devtools::install_github("rje42/MixedGraphs")
+# devtools::install_github("rje42/ADMGs2")
+# devtools::install_github("rje42/imset")
+# devtools::install_github("rje42/lpSolve")
+```
+
+We can then load the package in the usual manner.
 
 ```{r setup}
 library(imset)
