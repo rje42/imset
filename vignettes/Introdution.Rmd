@@ -1,0 +1,99 @@
+---
+title: "Introdution"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Introdution}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Imsets
+
+This package allows for the construction, manipulation and testing of independence
+models represented by _imsets_.  
+
+An _imset_ is an **i**nteger-valued **m**ulti**set**, or a function from the 
+powerset of a collection of variables $V$ to the integers.  They can be used
+to represent arbitrary conditional independence models, by assessing whether or
+not certain imsets are _structural_.  
+
+### Basic Definitions
+
+The _identifier_ imset $\delta_A$ is a vector indexed by subsets of $V$ with 
+a 1 in the entry that corresponds to $A$, and 0 in all other entries.
+
+A _semi-elementary imset_ is isomorphic to a triple $A,B,C$ of disjoint sets 
+where the order of the first two elements is arbitrary.  It is defined as
+\begin{align*}
+u_{\langle A,B | C\rangle} := \delta_{C} - \delta_{AC} - \delta_{BC} + \delta_{ABC}
+\end{align*}
+
+An imset $u$ is said to be _structural_ if there is some natural number $k \in \mathbb{N}$
+such that $k\cdot u$ can be written as a sum of semi-elementary imsets with 
+natural numbers as coefficients.  In other words, if 
+\begin{align}
+\exists k \in \mathbb{N} : \qquad k \cdot u = \sum_{i} k_i \cdot u_{\langle A_i,B_i | C_i\rangle} \qquad \text{for } k_i \in \mathbb{N}. \label{eqn:struc}
+\end{align}
+An _imset_ is said to _represent_ an independence $A \perp B \mid C$ if there 
+exists a $k \in \mathbb{N}$ such that
+\begin{align*}
+k \cdot u - u_{\langle A,B | C\rangle}
+\end{align*}
+is structural.  Note that therefore the imset itself must be structural, and will 
+represent any of the independences in the expansion on the right-hand side of 
+(\ref{eqn:struc}). 
+
+### The Package
+
+We can load the package in the usual manner.
+
+```{r setup}
+library(imset)
+```
+
+Then to define an imset, we can use the `elem_imset` function.
+```{r elem_imset}
+elem_imset(1,2)
+elem_imset(1,2,4)
+elem_imset(1,2,4,n=6)
+```
+Note that the argument `n` modifies the total number of variables, which is 
+otherwise assumed to be the largest number specified.
+
+We can test whether a given imset is structural using `is_structural`.
+```{r is_structural}
+up <- elem_imset(1,2) + elem_imset(1,3,2)
+um <- elem_imset(1,2) - elem_imset(1,3,2)
+is_structural(up)
+is_structural(um)
+```
+Note that if the imset is structural, then a valid decomposition is returned.  It 
+is clear that this is not unique in general.
+
+### Standard Imsets
+
+The standard imset for a DAG is defined in the usual way.  We can create a 
+DAG using the `graphCr` function from the `MixedGraphs` package.
+```{r makeDAG}
+dag1 <- graphCr("1 -> 3 <- 2, 3 -> 4")
+u1 <- standard_imset(dag1)
+u1
+```
+The characteristic imset can be obtained by applying `char_imset` to either the 
+graph or the standard imset.
+
+We can also check whether the standard imset defines the model for the DAG.
+```{r defines_mod}
+defines_mod(dag1, u1)
+```
+And then test another imset which we know does not:
+```{r ndefines_mod}
+defines_mod(dag1, elem_imset(1,4))
+```

@@ -10,7 +10,8 @@ defines_mod(
   timeout = 60L,
   trace = FALSE,
   sparse = FALSE,
-  rmv_edges = FALSE
+  rmv_edges = FALSE,
+  stop_if_fail = TRUE
 )
 }
 \arguments{
@@ -26,6 +27,9 @@ defines_mod(
 \item{sparse}{logical: use sparse matrix?}
 
 \item{rmv_edges}{logical: only use missing edges in the graph in the constraint matrix?}
+
+\item{stop_if_fail}{logical: should procedure stop if one independence is not
+represeneted?}
 }
 \description{
 Check if the standard imset for a graph defines the model

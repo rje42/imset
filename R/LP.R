@@ -348,6 +348,8 @@ is_structural <- function (imset, timeout=60L, sparse=FALSE) {
 ##' @param trace logical: should details be given of tests?
 ##' @param sparse logical: use sparse matrix?
 ##' @param rmv_edges logical: only use missing edges in the graph in the constraint matrix?
+##' @param stop_if_fail logical: should procedure stop if one independence is not
+##' represeneted?
 ##'
 ##' @details The \code{timeout} argument requires version 5.6.13.4.9000 of \code{lpSolve} to be
 ##' installed.  If the function returns \code{NA} then no independence was found
@@ -355,7 +357,7 @@ is_structural <- function (imset, timeout=60L, sparse=FALSE) {
 ##'
 ##' @export
 defines_mod <- function (graph, u, timeout=60L, trace=FALSE, sparse=FALSE,
-                         rmv_edges=FALSE) {
+                         rmv_edges=FALSE, stop_if_fail=TRUE) {
   if (missing(u)) u <- standard_imset(graph)
   if (rmv_edges) {
     nind <- withEdgeList(morphEdges(graph, to="undirected"))$edges$undirected
@@ -392,13 +394,15 @@ defines_mod <- function (graph, u, timeout=60L, trace=FALSE, sparse=FALSE,
     if (trace) {
       cat("Testing independence: ")
       print(mod[[k]])
+      cat("\b : ")
     }
     if (is.na(timeout)) ind_k <- test_indep(u, mod[[k]])
     else ind_k <- test_indep(u, mod[[k]], consMat=consMat, timeout=timeout, sparse=sparse)
     if (is.na(ind_k)) out <- NA
     else if(!ind_k) out <- FALSE
+    if (trace) cat(ind_k, "\n")
 
-    if (isFALSE(out)) break
+    if (stop_if_fail && isFALSE(out)) break
   }
   out
 }
