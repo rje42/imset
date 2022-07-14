@@ -29,3 +29,11 @@
 ##' @aliases gr1a gr1b
 ##'
 "gr1a"
+
+##' Bidirected graphs on 5 and 6 vertices
+##'
+##' List of all bidirected connected graphs on 5 and 6 unlabelled vertices.
+##'
+##' @aliases bidi5 bidi6
+"bidi5"
+

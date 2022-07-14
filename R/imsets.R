@@ -64,7 +64,7 @@ setGeneric("char_imset")
 ##' @method standard_imset mixedgraph
 ##' @importFrom rje kronPower
 ##' @export
-standard_imset.mixedgraph <- function(x) {
+standard_imset.mixedgraph <- function(x, slow=FALSE) {
   if (!is_ADMG(x)) stop("This function only currently works for ADMGs")
 
   n <- length(x$vnames)
@@ -88,7 +88,8 @@ standard_imset.mixedgraph <- function(x) {
   #   out[pa_set+2^(seq_len(n)-1)] <- out[pa_set+2^(seq_len(n)-1)] - 1
   # }
   if (is_ADMG(x)) {
-    ht <- headsTails3(x, r=FALSE)
+    if (!slow) ht <- headsTails3(x, r=FALSE, sort=3)
+    else ht <- headsTails(x, r=FALSE, sort=3)
 
     for (h in seq_along(ht$heads)) {
       idx <- sapply(powerSet(ht$heads[[h]]), function(x) sum(2^(x-1))) + 1

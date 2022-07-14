@@ -1,0 +1,69 @@
+---
+title: "Bidirected Graphs"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Bidirected_Graphs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This is replication code for the manuscript by Hu and Evans (2022).
+```{r setup}
+library(imset)
+```
+
+## Number of Bidirected Graphs that do not define the model
+
+```{r bidi5, eval=TRUE}
+data(bidi5)
+
+dm <- logical(length(bidi5))
+for (i in seq_along(bidi5)) {
+  dm[i] <- defines_mod(bidi5[[i]])
+}
+
+cat(sum(dm), " imsets define the model out of ", length(dm), "\n", sep="")
+```
+Which graph fails to define the model?
+```{r 5cycle}
+bidi5[[which(!dm)]]
+```
+
+## Bidirected Graphs of size 6
+
+We can take the same approach for graphs of size 6, but we don't evaluate it
+here for reasons of time.
+
+```{r bidi6, eval=FALSE}
+data(bidi6)
+
+dm <- logical(length(bidi6))
+for (i in seq_along(bidi6)) {
+  dm[i] <- defines_mod(bidi6[[i]])
+}
+
+cat(sum(dm), " imsets define the model out of ", length(dm), "\n", sep="")
+```
+
+## Testing Decomposition
+
+We can also check that the decomposition given in Section 5 gives the same 
+results as the integer linear program.
+
+```{r, eval=TRUE}
+dmZH <- logical(length(bidi5))
+
+for (i in seq_along(bidi5)) {
+  dmZH[i] <- test_decomp_ZH(bidi5[[i]])
+}
+
+which(dm != dmZH)
+```
+
