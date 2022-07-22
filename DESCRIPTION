@@ -1,18 +1,19 @@
 Package: imset
 Type: Package
 Title: Methods for imsets with mixed graphs
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: person("Robin", "Evans", , "evans@stats.ox.ac.uk", role = c("aut", "cre"))
 Description: Methods for imsets with mixed graphs, including testing of model
     definitions via linear programming.
 Depends:
     R (>= 3.1),
-    rje (>= 1.10.17),
+    rje (>= 1.11.1),
     lpSolve (>= 5.6),
     MixedGraphs (>= 0.6.2),
     ADMGs2 (>= 0.4.23),
     contingency
-Imports: methods, 
+Imports: e1071,
+         methods, 
          graphics, 
          stats, 
          utils,
