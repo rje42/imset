@@ -1,3 +1,59 @@
+##' Convert between ci object and text representation
+##'
+##' @param cis list of ci objects
+##' @param symm logical: should symmetric independences be listed
+##'
+##' @export
+ci2andrews <- function (cis, symm=FALSE) {
+  if (length(cis) == 0) {
+    if (symm) return(matrix(character(0), nrow=2))
+    else return(character(0))
+  }
+  if (!is.list(cis[[1]]))
+  out <- sapply(cis,
+                function (ci) if (length(ci[[3]]) > 0) paste(paste0(ci[[1]], collapse=""), ":",
+                                                             paste0(ci[[2]], collapse=""), "|",
+                                                             paste0(ci[[3]], collapse=""), sep="")
+                else paste(paste0(ci[[1]], collapse=""), ":",
+                           paste0(ci[[2]], collapse=""), sep=""))
+  if (symm) {
+    ## add in symmetric independences if required
+    out2 <- sapply(cis,
+                   function (ci) if (length(ci[[3]]) > 0) paste(paste0(ci[[2]], collapse=""), ":",
+                                                                paste0(ci[[1]], collapse=""), "|",
+                                                                paste0(ci[[3]], collapse=""), sep="")
+                   else paste(paste0(ci[[2]], collapse=""), ":",
+                              paste0(ci[[1]], collapse=""), sep=""))
+    out <- c(rbind(out, out2))
+  }
+  return(out)
+}
+
+##' @describeIn ci2andrews convert text string to ci objects
+##' @param x string of Andrew's notation
+##' @export
+andrews2ci <- function (x) {
+  ## start with some string manipulation
+  out <- strsplit(x, split=",")[[1]]
+  pval <- regexpr("[|]", out)
+  colval <- regexpr("[:]", out)
+  end <- nchar(out)
+  cond <- (pval > 0)
+
+  ## now deduce triples
+  A <- B <- C <- vector(mode="list", length=length(out))
+  A <- lapply(strsplit(sapply(strsplit(out, split=":"), function(x) x[[1]]), ""), as.numeric)
+  B[cond] <- mapply(function(x,y,z) substr(x,y,z), out[cond], y=colval[cond]+1, z=pval[cond]-1)
+  B[!cond] <- mapply(function(x,y,z) substr(x,y,z), out[!cond], y=colval[!cond]+1, z=end[!cond])
+  B <- lapply(unlist(B), function(x) strsplit(x, "")[[1]])
+  C[cond] <- mapply(function(x,y,z) substr(x,y,z), out[cond], y=pval[cond]+1, z=end[cond])
+  C[cond] <- lapply(unlist(C[cond]), function(x) strsplit(x, "")[[1]])
+  C[!cond] <- list(integer(0))
+
+  ## then return the solution
+  mapply(as.ci, A, B, C, SIMPLIFY = FALSE)
+}
+
 # NIE <- function (graph, topOrd) {
 #   if (missing(topOrd)) topOrd <- topologicalOrder(graph)
 #

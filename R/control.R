@@ -18,7 +18,7 @@ as.imset <- function(x) {
   x <- as.integer(round(x))
 
   nms <- ""
-  for (i in 1:n) {
+  for (i in seq_len(n)) {
     nms <- c(nms, paste(nms, i, sep=""))
   }
   nms[1] = "0"
