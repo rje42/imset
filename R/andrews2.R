@@ -5,7 +5,7 @@ pairs <- function (graph, topOrd, subset_rep) {
   ord <- sapply(subset_rep, function (x) max(match(x, topOrd)))
   subs <- vector(length=nv(graph), mode="list")
   for (i in seq_along(subs)) {
-    subs[[i]] <- subset_rep[ord == topOrd[i]]
+    subs[[i]] <- subset_rep[ord == i]
   }
 
   out <- vector(length=nv(graph), mode="list")
@@ -33,7 +33,7 @@ pairs_v <- function (graph, v, subset_rep) {
 
   # if (missing(subset_rep)) subset_rep <- subsetRep(graph, sort = 3)
 
-  sub_mis <- powerSetCond(v, graph$v[-length(graph$v)], sort = 3)
+  sub_mis <- powerSetCond(v, setdiff(graph$v, v), sort = 3)
   sub_mis <- sub_mis[!(sub_mis %in% subset_rep)]
 
   lm <- lengths(subset_rep)

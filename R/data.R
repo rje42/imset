@@ -37,3 +37,6 @@
 ##' @aliases bidi5 bidi6
 "bidi5"
 
+##' MAGs that do not defined the model over 5 and 6 vertices
+##'
+"fail56"
