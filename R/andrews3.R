@@ -10,6 +10,7 @@ ci2andrews <- function (cis, symm=FALSE) {
     else return(character(0))
   }
   if (!is.list(cis[[1]])) cis <- list(cis)
+
   out <- sapply(cis,
                 function (ci) if (length(ci[[3]]) > 0) paste(paste0(ci[[1]], collapse=""), ":",
                                                              paste0(ci[[2]], collapse=""), "|",
