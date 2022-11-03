@@ -113,7 +113,8 @@ standard_imset.mixedgraph <- function(x, slow=FALSE) {
 ##' @export
 standard_imset.imset <- function(x) {
   n <- log2(length(x))
-  out <- rev(subsetMatrix(n) %*% rev(1 - x))
+  out <- rev(invMobius(rev(1 - x)))
+  # out <- rev(subsetMatrix(n) %*% rev(1 - x))
   out <- as.imset(out)
 
   out
@@ -156,7 +157,8 @@ char_imset.mixedgraph <- function(x) {
 char_imset.imset <- function(x) {
   n <- log2(length(x))
 
-  out <- 1 - rev(abs(subsetMatrix(n)) %*% rev(x))
+  out <- 1 - rev(fastMobius(rev(x)))
+  # out <- 1 - rev(abs(subsetMatrix(n)) %*% rev(x))
   out <- as.imset(out)
 
   out
