@@ -26,6 +26,6 @@ Function is now deprecated in favour of \code{elem_imset}.
 }
 \section{Functions}{
 \itemize{
-\item \code{elemToIndep}: Deprecated version of elemToIndep, use \code{sei2ci}
-}}
+\item \code{elemToIndep()}: Deprecated version of elemToIndep, use \code{sei2ci}
 
+}}

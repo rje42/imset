@@ -29,8 +29,8 @@ of \code{lpSolve} to be installed.
 }
 \section{Functions}{
 \itemize{
-\item \code{is_structural}: test if imset is structural
+\item \code{is_structural()}: test if imset is structural
 
-\item \code{imset_degree}: for a structural imset, get its degree
+\item \code{imset_degree()}: for a structural imset, get its degree
+
 }}
-

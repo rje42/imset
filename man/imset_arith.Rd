@@ -23,8 +23,8 @@ recycling in R giving the wrong answer.
 }
 \section{Functions}{
 \itemize{
-\item \code{+.imset}: Add imsets
+\item \code{ + }: Add imsets
 
-\item \code{-.imset}: Subtract imsets
+\item \code{ - }: Subtract imsets
+
 }}
-

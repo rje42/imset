@@ -19,6 +19,6 @@ Zero imset
 }
 \section{Functions}{
 \itemize{
-\item \code{identifier_imset}: identify a single set
-}}
+\item \code{identifier_imset()}: identify a single set
 
+}}

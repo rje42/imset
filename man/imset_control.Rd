@@ -24,8 +24,8 @@ the length of the vector \code{x} must be a power of 2 length.
 }
 \section{Functions}{
 \itemize{
-\item \code{as.imset}: force object to be an imset
+\item \code{as.imset()}: force object to be an imset
 
-\item \code{is.imset}: test if object is an imset
+\item \code{is.imset()}: test if object is an imset
+
 }}
-

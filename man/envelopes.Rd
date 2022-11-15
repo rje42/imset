@@ -19,8 +19,8 @@ sets in an imset.
 }
 \section{Functions}{
 \itemize{
-\item \code{upperEnvelope}: Get maximal positive sets from imset
+\item \code{upperEnvelope()}: Get maximal positive sets from imset
 
-\item \code{lowerEnvelope}: Get maximal negative sets from imset
+\item \code{lowerEnvelope()}: Get maximal negative sets from imset
+
 }}
-

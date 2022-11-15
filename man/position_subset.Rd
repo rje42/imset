@@ -22,8 +22,8 @@ Move between subsets and integer position in vector
 }
 \section{Functions}{
 \itemize{
-\item \code{posToSubset}: Obtain subset from position
+\item \code{posToSubset()}: Obtain subset from position
 
-\item \code{subsetToPos}: Integer position from subset
+\item \code{subsetToPos()}: Integer position from subset
+
 }}
-

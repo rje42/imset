@@ -10,7 +10,7 @@
 \usage{
 elem_imset(...)
 
-elem_imset.default(A, B, C = integer(0), n = max(c(A, B, C)))
+elem_imset.default(A, B, C = integer(0), n = max(c(A, B, C)), check = TRUE)
 
 elem_imset.ci(ci, n)
 
@@ -22,6 +22,8 @@ ci2sei(ci, n = max(vars))
 \item{A, B, C}{disjoint subsets of 1,..,n}
 
 \item{n}{number of variables involved}
+
+\item{check}{logical: check entries are valid?}
 
 \item{ci}{object of class \code{ci}}
 
@@ -37,12 +39,12 @@ with all but four entries zero.
 }
 \section{Functions}{
 \itemize{
-\item \code{elem_imset.default}: Method for integer vectors
+\item \code{elem_imset.default()}: Method for integer vectors
 
-\item \code{elem_imset.ci}: Method for \code{ci} object
+\item \code{elem_imset.ci()}: Method for \code{ci} object
 
-\item \code{sei2ci}: 
+\item \code{sei2ci()}: 
 
-\item \code{ci2sei}: convert conditional independence to semi-elementary imset
+\item \code{ci2sei()}: convert conditional independence to semi-elementary imset
+
 }}
-

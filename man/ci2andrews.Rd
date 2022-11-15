@@ -21,6 +21,6 @@ Convert between ci object and text representation
 }
 \section{Functions}{
 \itemize{
-\item \code{andrews2ci}: convert text string to ci objects
-}}
+\item \code{andrews2ci()}: convert text string to ci objects
 
+}}

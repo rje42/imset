@@ -17,10 +17,11 @@ setGeneric("elem_imset")
 
 ##' @param A,B,C disjoint subsets of 1,..,n
 ##' @param n number of variables involved
+##' @param check logical: check entries are valid?
 ##'
 ##' @describeIn elem_imset Method for integer vectors
 ##' @export
-elem_imset.default <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
+elem_imset.default <- function(A, B, C=integer(0), n=max(c(A,B,C)), check=TRUE) {
 
   if (length(intersect(A,B)) > 0) stop("sets A and B should not intersect")
   if (length(intersect(c(A,B), C)) > 0) {
@@ -29,11 +30,28 @@ elem_imset.default <- function(A, B, C=integer(0), n=max(c(A,B,C))) {
   }
   if (length(A) == 0 || length(B) == 0) return(zero_imset(n))
 
+  ## if requested, check that entries are unique and integers
+  if (check) {
+    dA <- duplicated(A)
+    if (any(dA)) A <- A[!dA]
+    dB <- duplicated(B)
+    if (any(dB)) B <- B[!dB]
+    dC <- duplicated(C)
+    if (any(dC)) C <- C[!dC]
+
+    if (any(c(A,B,C) <= 0.5)) stop("Entries should be positive integers")
+    if (!isTRUE(all.equal(round(c(A,B,C)),
+                          c(A,B,C)))) stop("Entries should be positive integers")
+  }
+
   ## compute entries in vector
-  wts <- 2^(seq_len(n)-1)
-  wtC <- sum(wts[C])
-  wtA <- sum(wts[A])
-  wtB <- sum(wts[B])
+  # wts <- 2^(seq_len(n)-1)
+  # wtC <- sum(wts[C])
+  # wtA <- sum(wts[A])
+  # wtB <- sum(wts[B])
+  wtC <- sum(2^(C-1))
+  wtA <- sum(2^(A-1))
+  wtB <- sum(2^(B-1))
 
   ## construct vector
   out <- rep(0,2^n)

@@ -1,7 +1,7 @@
 Package: imset
 Type: Package
 Title: Methods for imsets with mixed graphs
-Version: 0.6.0
+Version: 0.6.1
 Authors@R: person("Robin", "Evans", , "evans@stats.ox.ac.uk", role = c("aut", "cre"))
 Description: Methods for imsets with mixed graphs, including testing of model
     definitions via linear programming.
@@ -24,6 +24,6 @@ Suggests:
     testthat,
     Matrix,
     rmarkdown,
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.1
 Encoding: UTF-8
 VignetteBuilder: knitr
