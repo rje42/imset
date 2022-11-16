@@ -54,10 +54,16 @@ elem_imset.default <- function(A, B, C=integer(0), n=max(c(A,B,C)), check=TRUE) 
   wtB <- sum(2^(B-1))
 
   ## construct vector
-  out <- rep(0,2^n)
-  out[c(wtC, wtC+wtA, wtC+wtB, wtC+wtA+wtB)+1] = c(1,-1,-1,1)
+  # if (sparse) {
+  #   if (wtA > wtB) make_imset(x=c(1,-1,-1,1), i=c(wtC, wtC+wtB, wtC+wtA, wtC+wtA+wtB), n=n)
+  #   else out <- make_imset(x=c(1,-1,-1,1), i=c(wtC, wtC+wtA, wtC+wtB, wtC+wtA+wtB), n=n)
+  # }
+  # else {
+    out <- rep(0,2^n)
+    out[c(wtC, wtC+wtA, wtC+wtB, wtC+wtA+wtB)+1] = c(1,-1,-1,1)
+  # }
 
-  as.imset(out)
+  out
 }
 
 ##' @param ci object of class \code{ci}
