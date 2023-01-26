@@ -5,12 +5,14 @@
 \alias{identifier_imset}
 \title{Zero imset}
 \usage{
-zero_imset(n)
+zero_imset(n, sparse = FALSE, vnames)
 
-identifier_imset(A, n)
+identifier_imset(A, n, sparse = FALSE, vnames)
 }
 \arguments{
 \item{n}{number of variables}
+
+\item{sparse}{logical: should sparse imsets be used?}
 
 \item{A}{set to identify}
 }

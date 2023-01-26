@@ -23,17 +23,20 @@
 ##' Zero imset
 ##'
 ##' @param n number of variables
+##' @param sparse logical: should sparse imsets be used?
 ##'
 ##' @export
-zero_imset <- function(n) {
-  as.imset(rep(0, 2^n))
+zero_imset <- function(n, sparse=FALSE, vnames) {
+  if (sparse) make_imset(x=numeric(0), pos=numeric(0), n, vnames)
+  else as.imset(rep(0, 2^n))
 }
 
 ##' @describeIn zero_imset identify a single set
 ##' @param A set to identify
 ##' @export
-identifier_imset <- function(A, n) {
+identifier_imset <- function(A, n, sparse=FALSE, vnames) {
   if (missing(n)) n <- max(A)
+  if (sparse) return(identifier_sparse_imset(A, n, vnames))
 
   out <- as.imset(rep(0, 2^n))
   out[subsetToPos(list(A))] <- 1
@@ -156,6 +159,19 @@ char_imset.mixedgraph <- function(x) {
 ##' @export
 char_imset.imset <- function(x) {
   n <- log2(length(x))
+
+  out <- 1 - rev(fastMobius(rev(x)))
+  # out <- 1 - rev(abs(subsetMatrix(n)) %*% rev(x))
+  out <- as.imset(out)
+
+  out
+}
+
+##' Just treat as an imset
+##' @export
+char_imset.default <- function(x) {
+  n <- log2(length(x))
+  if (!isTRUE(all.equal(round(n), n))) stop("Vector should have a power of 2 length")
 
   out <- 1 - rev(fastMobius(rev(x)))
   # out <- 1 - rev(abs(subsetMatrix(n)) %*% rev(x))
