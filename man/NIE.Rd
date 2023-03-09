@@ -4,16 +4,30 @@
 \alias{NIE}
 \title{Implement Andrews' Algorithm 6}
 \usage{
-NIE(graph, topOrd)
+NIE(graph, topOrd, alg3 = FALSE)
 }
 \arguments{
 \item{graph}{an ADMG of class \code{mixedgraph}}
 
 \item{topOrd}{an optional topological ordering}
+
+\item{alg3}{logical: should the less sophisticated Algorithm 3 be used?}
 }
 \description{
 Implement Andrews' Algorithm 6
 }
 \details{
-Implements Algorithm 6 from Andrews (2022).
+Implements Algorithm 6 from Andrews (2022).  This involves, for
+each vertex v, first collecting pairs of maximal disconnected sets and the
+corresponding Markov blankets of v, and then taking all intersections of
+these sets.  Each of these can be associated with an independence, which is
+either added to the inclusion or the exclusion set, depending upon its
+parity.  The difference between these two imsets is the characteristic imset
+that can be obtained directly using \code{char_imset()}.
+
+Algorithm 3 (which is run if \code{alg3} is \code{TRUE}) is essentially
+the same as Algorithm 6, but it does not check for independences that have
+already been added so ends up with much higher degree results for both the
+inclusion and exclusion imsets.  The difference between the two is the same
+for both, however.
 }

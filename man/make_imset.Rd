@@ -4,7 +4,7 @@
 \alias{make_imset}
 \title{Construct sparse imset}
 \usage{
-make_imset(x, pos, n, vnames)
+make_imset(x, pos, n, vnames, names = TRUE)
 }
 \arguments{
 \item{x}{entries}
@@ -14,6 +14,8 @@ make_imset(x, pos, n, vnames)
 \item{n}{number of variables}
 
 \item{vnames}{names for variables}
+
+\item{names}{logical: should variable names be included?}
 }
 \description{
 Construct sparse imset

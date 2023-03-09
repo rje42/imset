@@ -4,9 +4,10 @@
 ##' @param pos indices or list of subsets
 ##' @param n number of variables
 ##' @param vnames names for variables
+##' @param names logical: should variable names be included?
 ##'
 ##'
-make_imset <- function (x, pos, n, vnames) {
+make_imset <- function (x, pos, n, vnames, names=TRUE) {
   if (length(x) != length(pos)) stop("Entries and indices must have same length")
 
   if (is.list(pos)) {
@@ -18,12 +19,14 @@ make_imset <- function (x, pos, n, vnames) {
   }
   else if (missing(n)) n <- length(vnames)
 
-  if (missing(vnames)) vnames <- paste("x", seq_len(n), sep="")
+  if (names && missing(vnames)) vnames <- paste("x", seq_len(n), sep="")
 
   if (any(posi > 2^n)) stop("n provided not compatible with some entries")
 
-  if (is.list(pos)) names(x) <- entry_names.list(pos, vnames)
-  else names(x) <- entry_names.numeric(posi, vnames)
+  if (names) {
+    if (is.list(pos)) names(x) <- entry_names.list(pos, vnames)
+    else names(x) <- entry_names.numeric(posi, vnames)
+  }
 
   ## sort entries
   ord <- order(posi)
@@ -47,16 +50,6 @@ print.sparse_imset <- function (x) {
 identifier_sparse_imset <- function(A, n, vnames) {
   make_imset(x=1, pos=subsetToPos(list(A)), n=n, vnames)
 }
-
-# `+.sparse_imset` <- function (e1, e2) {
-#   pos1 <- attr(e1, "idx")
-#   pos2 <- attr(e2, "idx")
-#
-#   out_i <- c(pos1, pos2)
-#   ord <- order(out_i)
-#
-#   if ()
-# }
 
 ##' @export
 `+.sparse_imset` <- function (e1, e2) {
@@ -114,7 +107,10 @@ identifier_sparse_imset <- function(A, n, vnames) {
   }
 
   ## get resulting imset
-  out <- make_imset(x, posi, n=n)
+  out <- make_imset(x, posi, n=n, names=!is.null(names(e1)))
   return(out)
 }
 
+elem_imset_sparse <- function(A, B, C = integer(0), n = max(c(A, B, C))) {
+  return(make_imset(x = c(1,-1,-1,1), pos = list(c(A,B,C),c(B,C),c(A,C),C), n=n, names=FALSE))
+}
