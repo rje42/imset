@@ -1,3 +1,5 @@
+timeout_ver <- '5.6.18.9000'
+
 gen_constraints <- function (n, sparse=FALSE, reduce=NULL) {
   if (sparse) require(Matrix)
   if (n < 0) stop("n must be non-negative")
@@ -112,7 +114,7 @@ test_indep <- function (imset, ci, consMat, timeout=60L, sparse=FALSE) {
 
   dirs <- c(rep("==", nr), rep(">=", nc+1))
 
-  if (packageVersion("lpSolve") != '5.6.13.4.9000') {
+  if (packageVersion("lpSolve") < timeout_ver) {
     if (!missing(timeout)) message("Wrong version of lpSolve installed, so timeout will not work")
 
     if (sparse) {
@@ -190,7 +192,7 @@ is_combinatorial <- function (imset, timeout=60L, sparse=FALSE) {
   }
   dirs <- c(rep("==", nr), rep(">=", nc))
 
-  if (packageVersion("lpSolve") != '5.6.13.4.9000') {
+  if (packageVersion("lpSolve") < timeout_ver) {
     if (!missing(timeout)) message("Wrong version of lpSolve installed, so timeout will not work")
 
     if (sparse) {
@@ -283,7 +285,7 @@ is_structural <- function (imset, timeout=60L, sparse=FALSE) {
 
   dirs <- c(rep("==", nr), rep(">=", nc), ">=")
 
-  if (packageVersion("lpSolve") != '5.6.13.4.9000') {
+  if (packageVersion("lpSolve") < timeout_ver) {
     if (!missing(timeout)) message("Wrong version of lpSolve installed, so timeout will not work")
 
     if (sparse) {
@@ -366,7 +368,7 @@ defines_mod <- function (graph, u, timeout=60L, trace=FALSE, sparse=FALSE,
   mod <- ADMGs2::localMarkovProperty(graph, split=TRUE)
   out <- TRUE
 
-  if (packageVersion("lpSolve") != '5.6.13.4.9000' && !missing(timeout)) {
+  if (packageVersion("lpSolve") < timeout_ver && !missing(timeout)) {
     message("Wrong version of lpSolve installed, so timeout will not work")
     timeout = NA
   }
@@ -430,7 +432,7 @@ definesMod <- function (graph, u, timeout=60L, trace=FALSE) {
   mod <- ADMGs2::localMarkovProperty(graph, split=TRUE)
   out <- TRUE
 
-  if (packageVersion("lpSolve") != '5.6.13.4.9000' && !missing(timeout)) {
+  if (packageVersion("lpSolve") < timeout_ver) {
     message("Wrong version of lpSolve installed, so timeout will not work")
     timeout = NA
   }
